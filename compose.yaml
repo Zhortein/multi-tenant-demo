@@ -51,6 +51,18 @@ services:
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
+###> mailpit ###
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< mailpit ###
+
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###

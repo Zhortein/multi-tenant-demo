@@ -10,9 +10,7 @@ use App\Entity\User;
 use App\Message\SendNotificationMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Mime\Email;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 
 /**
@@ -27,7 +25,7 @@ final readonly class TenantNotificationService
     public function __construct(
         private EntityManagerInterface $entityManager,
         private TenantContextInterface $tenantContext,
-        private MailerInterface $mailer,
+        private TenantMailerService $tenantMailer,
         private MessageBusInterface $messageBus,
         private LoggerInterface $logger
     ) {
@@ -135,98 +133,29 @@ final readonly class TenantNotificationService
     }
 
     /**
-     * Send email for a notification.
+     * Send email for a notification using the tenant mailer service.
      */
     private function sendEmail(Notification $notification): void
     {
-        $tenant = $notification->getTenant();
         $recipientEmail = $notification->getRecipientEmail();
 
         if (!$recipientEmail) {
             throw new \RuntimeException('No recipient email available for notification');
         }
 
-        $email = (new Email())
-            ->from('noreply@' . ($tenant->getDomain() ? parse_url($tenant->getDomain(), PHP_URL_HOST) : 'example.com'))
-            ->to($recipientEmail)
-            ->subject('[' . $tenant->getName() . '] ' . $notification->getTitle())
-            ->html($this->buildEmailHtml($notification))
-            ->text($this->buildEmailText($notification));
-
-        $this->mailer->send($email);
+        $this->tenantMailer->sendNotificationEmail(
+            to: $recipientEmail,
+            title: $notification->getTitle(),
+            message: $notification->getMessage(),
+            type: $notification->getType(),
+            tenant: $notification->getTenant()
+        );
 
         $this->logger->info('Email sent for notification', [
             'notification_id' => $notification->getId(),
             'recipient_email' => $recipientEmail,
-            'tenant_slug' => $tenant->getSlug(),
+            'tenant_slug' => $notification->getTenant()->getSlug(),
         ]);
-    }
-
-    /**
-     * Build HTML email content.
-     */
-    private function buildEmailHtml(Notification $notification): string
-    {
-        $tenant = $notification->getTenant();
-        $type = $notification->getType();
-        $title = htmlspecialchars($notification->getTitle());
-        $message = nl2br(htmlspecialchars($notification->getMessage()));
-
-        $color = match ($type) {
-            Notification::TYPE_SUCCESS => '#28a745',
-            Notification::TYPE_WARNING => '#ffc107',
-            Notification::TYPE_ERROR => '#dc3545',
-            default => '#007bff',
-        };
-
-        return <<<HTML
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>{$title}</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: {$color}; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; background-color: #f9f9f9; }
-        .footer { padding: 20px; text-align: center; color: #666; font-size: 12px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{$title}</h1>
-        </div>
-        <div class="content">
-            <p>{$message}</p>
-        </div>
-        <div class="footer">
-            <p>This notification was sent by {$tenant->getName()}</p>
-            <p>Sent on {$notification->getCreatedAt()->format('F j, Y \\a\\t g:i A')}</p>
-        </div>
-    </div>
-</body>
-</html>
-HTML;
-    }
-
-    /**
-     * Build plain text email content.
-     */
-    private function buildEmailText(Notification $notification): string
-    {
-        $tenant = $notification->getTenant();
-        
-        return <<<TEXT
-{$notification->getTitle()}
-
-{$notification->getMessage()}
-
----
-This notification was sent by {$tenant->getName()}
-Sent on {$notification->getCreatedAt()->format('F j, Y \\a\\t g:i A')}
-TEXT;
     }
 
     /**

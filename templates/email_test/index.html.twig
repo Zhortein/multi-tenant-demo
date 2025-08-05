@@ -1,0 +1,358 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Email Testing - {{ current_tenant.name }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-envelope me-2"></i>
+                                Email Testing Interface
+                            </h4>
+                            <small class="opacity-75">Test tenant-aware email functionality with Mailpit</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-light text-dark fs-6">
+                                <i class="fas fa-building me-1"></i>
+                                {{ current_tenant.name }}
+                            </div>
+                            <div class="small mt-1 opacity-75">
+                                Tenant: {{ current_tenant.slug }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p class="mb-2">
+                                <strong>Current Features:</strong>
+                                Tenant-specific branding, professional templates, async processing, and Mailpit integration.
+                            </p>
+                            <p class="mb-0">
+                                <strong>From Address:</strong> 
+                                <code>noreply@{{ current_tenant.slug }}.example.com</code>
+                                <strong class="ms-3">Subject Prefix:</strong> 
+                                <code>[{{ current_tenant.name }}]</code>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ path('app_email_test_mailpit', {tenantSlug: current_tenant.slug}) }}" 
+                               class="btn btn-outline-primary btn-sm me-2" target="_blank">
+                                <i class="fas fa-external-link-alt me-1"></i>
+                                View Mailpit
+                            </a>
+                            <a href="https://drenard.devlogiciel.com:8025" class="btn btn-outline-secondary btn-sm" target="_blank">
+                                <i class="fas fa-inbox me-1"></i>
+                                Mailpit Direct
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                        {{ message|raw }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <div class="row">
+                <!-- Direct Email Testing -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Direct Email Testing
+                            </h5>
+                            <small class="opacity-75">Send emails directly through TenantMailerService</small>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('app_email_test_send', {tenantSlug: current_tenant.slug}) }}">
+                                <div class="mb-3">
+                                    <label for="recipient_email" class="form-label">
+                                        <i class="fas fa-at me-1"></i>
+                                        Recipient Email <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" class="form-control" id="recipient_email" name="recipient_email" 
+                                           placeholder="test@example.com" required>
+                                    <div class="form-text">Email will be sent to Mailpit, not to the actual recipient</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="test_type" class="form-label">
+                                        <i class="fas fa-list me-1"></i>
+                                        Email Type
+                                    </label>
+                                    <select class="form-select" id="test_type" name="test_type" onchange="toggleCustomFields()">
+                                        {% for value, label in email_types %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Custom fields for specific email types -->
+                                <div id="welcome_fields" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="user_name" class="form-label">
+                                            <i class="fas fa-user me-1"></i>
+                                            User Name
+                                        </label>
+                                        <input type="text" class="form-control" id="user_name" name="user_name" 
+                                               placeholder="John Doe" value="Test User">
+                                    </div>
+                                </div>
+
+                                <div id="notification_fields" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="notification_type" class="form-label">
+                                            <i class="fas fa-bell me-1"></i>
+                                            Notification Type
+                                        </label>
+                                        <select class="form-select" id="notification_type" name="notification_type">
+                                            {% for value, label in notification_types %}
+                                                <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="custom_fields" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="custom_subject" class="form-label">
+                                            <i class="fas fa-heading me-1"></i>
+                                            Custom Subject
+                                        </label>
+                                        <input type="text" class="form-control" id="custom_subject" name="custom_subject" 
+                                               placeholder="Custom email subject">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="custom_message" class="form-label">
+                                            <i class="fas fa-comment me-1"></i>
+                                            Custom Message
+                                        </label>
+                                        <textarea class="form-control" id="custom_message" name="custom_message" 
+                                                  rows="3" placeholder="Custom email message content"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        Send Test Email(s)
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification System Testing -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bell me-2"></i>
+                                Notification System Testing
+                            </h5>
+                            <small class="opacity-75">Send emails through the notification system (with async option)</small>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('app_email_test_send_notification', {tenantSlug: current_tenant.slug}) }}">
+                                <div class="mb-3">
+                                    <label for="notif_recipient_email" class="form-label">
+                                        <i class="fas fa-at me-1"></i>
+                                        Recipient Email <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" class="form-control" id="notif_recipient_email" name="recipient_email" 
+                                           placeholder="test@example.com" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notification_title" class="form-label">
+                                        <i class="fas fa-heading me-1"></i>
+                                        Notification Title
+                                    </label>
+                                    <input type="text" class="form-control" id="notification_title" name="notification_title" 
+                                           placeholder="Test Notification" value="Test Notification from Web Interface">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notification_message" class="form-label">
+                                        <i class="fas fa-comment me-1"></i>
+                                        Notification Message
+                                    </label>
+                                    <textarea class="form-control" id="notification_message" name="notification_message" 
+                                              rows="3" placeholder="Notification message content">This is a test notification sent through the web interface to demonstrate the notification system with email functionality.</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notif_type" class="form-label">
+                                        <i class="fas fa-tag me-1"></i>
+                                        Notification Type
+                                    </label>
+                                    <select class="form-select" id="notif_type" name="notification_type">
+                                        {% for value, label in notification_types %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="send_async" name="send_async" value="1">
+                                        <label class="form-check-label" for="send_async">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Send Asynchronously
+                                            <small class="text-muted d-block">Queue the email for background processing</small>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-info">
+                                        <i class="fas fa-bell me-2"></i>
+                                        Create Notification
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Types Information -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Available Email Types
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-envelope text-primary me-2"></i>Simple Email</h6>
+                                    <p class="small text-muted mb-3">Basic text/HTML email with tenant branding wrapper</p>
+                                    
+                                    <h6><i class="fas fa-code text-success me-2"></i>Templated Email</h6>
+                                    <p class="small text-muted mb-3">Professional Twig template with tenant context</p>
+                                    
+                                    <h6><i class="fas fa-bell text-info me-2"></i>Notification Email</h6>
+                                    <p class="small text-muted mb-3">Type-specific notification with icons and styling</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-user-plus text-warning me-2"></i>Welcome Email</h6>
+                                    <p class="small text-muted mb-3">User onboarding email with getting started guide</p>
+                                    
+                                    <h6><i class="fas fa-layer-group text-secondary me-2"></i>All Email Types</h6>
+                                    <p class="small text-muted mb-3">Sends all email types for comprehensive testing</p>
+                                    
+                                    <div class="alert alert-light border">
+                                        <small>
+                                            <strong>Tenant Features:</strong>
+                                            All emails include tenant-specific headers, branding, and from addresses.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt me-2"></i>
+                                Quick Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <a href="{{ path('app_email_test_mailpit', {tenantSlug: current_tenant.slug}) }}" 
+                                       class="btn btn-outline-primary w-100 mb-2" target="_blank">
+                                        <i class="fas fa-inbox me-2"></i>
+                                        View Mailpit
+                                    </a>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="{{ path('tenant_notification_index', {tenantSlug: current_tenant.slug}) }}" 
+                                       class="btn btn-outline-info w-100 mb-2">
+                                        <i class="fas fa-bell me-2"></i>
+                                        View Notifications
+                                    </a>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="{{ path('tenant_document_index', {tenantSlug: current_tenant.slug}) }}" 
+                                       class="btn btn-outline-success w-100 mb-2">
+                                        <i class="fas fa-file me-2"></i>
+                                        View Documents
+                                    </a>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="{{ path('tenant_dashboard', {tenantSlug: current_tenant.slug}) }}" 
+                                       class="btn btn-outline-secondary w-100 mb-2">
+                                        <i class="fas fa-tachometer-alt me-2"></i>
+                                        Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleCustomFields() {
+    const testType = document.getElementById('test_type').value;
+    const welcomeFields = document.getElementById('welcome_fields');
+    const notificationFields = document.getElementById('notification_fields');
+    const customFields = document.getElementById('custom_fields');
+    
+    // Hide all fields first
+    welcomeFields.style.display = 'none';
+    notificationFields.style.display = 'none';
+    customFields.style.display = 'none';
+    
+    // Show relevant fields based on selection
+    switch(testType) {
+        case 'welcome':
+            welcomeFields.style.display = 'block';
+            break;
+        case 'notification':
+            notificationFields.style.display = 'block';
+            break;
+        case 'simple':
+        case 'templated':
+            customFields.style.display = 'block';
+            break;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleCustomFields();
+});
+</script>
+{% endblock %}

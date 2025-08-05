@@ -25,6 +25,9 @@
                 <li><a class="dropdown-item" href="{{ path('tenant_notification_index', {tenantSlug: tenant.slug}) }}">
                     <i class="bi bi-bell"></i> Notifications
                 </a></li>
+                <li><a class="dropdown-item" href="{{ path('app_email_test_index', {tenantSlug: tenant.slug}) }}">
+                    <i class="bi bi-envelope"></i> Email Testing
+                </a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{{ path('app_homepage') }}">
                     <i class="bi bi-arrow-left"></i> Back to Home
