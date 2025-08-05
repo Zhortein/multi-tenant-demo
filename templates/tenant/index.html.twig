@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Tenants - Admin{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-buildings"></i> Manage Tenants</h1>
+                <a href="{{ path('admin_tenant_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create New Tenant
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if tenants is empty %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <h4><i class="bi bi-info-circle"></i> No Tenants Found</h4>
+                    <p>There are currently no tenants in the system.</p>
+                    <a href="{{ path('admin_tenant_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create First Tenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Slug</th>
+                                        <th>Domain</th>
+                                        <th>Status</th>
+                                        <th>Users</th>
+                                        <th>Products</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tenant in tenants %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ tenant.name }}</strong>
+                                                {% if tenant.description %}
+                                                    <br><small class="text-muted">{{ tenant.description|slice(0, 60) }}{% if tenant.description|length > 60 %}...{% endif %}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <code>{{ tenant.slug }}</code>
+                                            </td>
+                                            <td>
+                                                {% if tenant.domain %}
+                                                    <a href="{{ tenant.domain }}" target="_blank" class="text-decoration-none">
+                                                        {{ tenant.domain }}
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if tenant.active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ tenant.users|length }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ tenant.products|length }}</span>
+                                            </td>
+                                            <td>
+                                                <small>{{ tenant.createdAt|date('M j, Y') }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('admin_tenant_show', {id: tenant.id}) }}" 
+                                                       class="btn btn-outline-primary" title="View">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_tenant_edit', {id: tenant.id}) }}" 
+                                                       class="btn btn-outline-secondary" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    {% if tenant.active %}
+                                                        <a href="{{ path('tenant_dashboard', {tenantSlug: tenant.slug}) }}" 
+                                                           class="btn btn-outline-success" title="Enter Tenant">
+                                                            <i class="bi bi-arrow-right"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

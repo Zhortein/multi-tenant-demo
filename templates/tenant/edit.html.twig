@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ tenant.name }} - Admin{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-pencil"></i> Edit Tenant: {{ tenant.name }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Tenant Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ tenant.name }}" required>
+                            <div class="form-text">The display name for this tenant.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3">{{ tenant.description|default('') }}</textarea>
+                            <div class="form-text">Optional description of the tenant.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="domain" class="form-label">Custom Domain</label>
+                            <input type="url" class="form-control" id="domain" name="domain" 
+                                   value="{{ tenant.domain|default('') }}" placeholder="https://example.com">
+                            <div class="form-text">Optional custom domain for this tenant.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="active" name="active" 
+                                       {% if tenant.active %}checked{% endif %}>
+                                <label class="form-check-label" for="active">
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-text">Inactive tenants cannot be accessed by users.</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Current Slug:</strong> <code>{{ tenant.slug }}</code><br>
+                            <small>The slug will be updated automatically if you change the tenant name.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('admin_tenant_show', {id: tenant.id}) }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Details
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Update Tenant
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

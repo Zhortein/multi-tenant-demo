@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Multi-Tenant Demo - Home{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white rounded p-5 mb-5">
+                <h1 class="display-4">
+                    <i class="bi bi-building"></i> Multi-Tenant Demo Application
+                </h1>
+                <p class="lead">
+                    Welcome to the Multi-Tenant Demo Application! This application demonstrates 
+                    the capabilities of the Zhortein Multi-Tenant Bundle for Symfony.
+                </p>
+                <hr class="my-4">
+                <p>
+                    Each tenant has its own isolated data space while sharing the same application codebase.
+                    Select a tenant below to explore their dedicated environment.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h2><i class="bi bi-buildings"></i> Available Tenants</h2>
+            
+            {% if tenants is empty %}
+                <div class="alert alert-info">
+                    <h4><i class="bi bi-info-circle"></i> No Tenants Available</h4>
+                    <p>There are currently no active tenants in the system.</p>
+                    <a href="{{ path('admin_tenant_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create First Tenant
+                    </a>
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for tenant in tenants %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-building"></i> {{ tenant.name }}
+                                    </h5>
+                                    {% if tenant.description %}
+                                        <p class="card-text">{{ tenant.description }}</p>
+                                    {% endif %}
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-link-45deg"></i> /{{ tenant.slug }}
+                                        </small>
+                                        <div class="btn-group">
+                                            <a href="{{ path('tenant_dashboard', {tenantSlug: tenant.slug}) }}" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="bi bi-arrow-right-circle"></i> Enter
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <small>
+                                        <i class="bi bi-people"></i> {{ tenant.users|length }} users
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-box"></i> {{ tenant.products|length }} products
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-gear"></i> Administration</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage tenants and system-wide settings.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_dashboard') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-speedometer2"></i> Admin Dashboard
+                        </a>
+                        <a href="{{ path('admin_tenant_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-buildings"></i> Manage Tenants
+                        </a>
+                        <a href="{{ path('admin_tenant_new') }}" class="btn btn-outline-success">
+                            <i class="bi bi-plus-circle"></i> Create Tenant
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-info-circle"></i> About This Demo</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small">
+                        This application demonstrates multi-tenancy patterns using the 
+                        <strong>Zhortein Multi-Tenant Bundle</strong>. Key features include:
+                    </p>
+                    <ul class="small">
+                        <li>Path-based tenant resolution</li>
+                        <li>Automatic data isolation</li>
+                        <li>Tenant-aware entities</li>
+                        <li>Shared database architecture</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

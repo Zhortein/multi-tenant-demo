@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Tenant - Admin{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-plus-circle"></i> Create New Tenant</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Tenant Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ name|default('') }}" required>
+                            <div class="form-text">The display name for this tenant.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3">{{ description|default('') }}</textarea>
+                            <div class="form-text">Optional description of the tenant.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="domain" class="form-label">Custom Domain</label>
+                            <input type="url" class="form-control" id="domain" name="domain" 
+                                   value="{{ domain|default('') }}" placeholder="https://example.com">
+                            <div class="form-text">Optional custom domain for this tenant.</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> The tenant slug will be automatically generated from the name.
+                            This slug will be used in URLs to identify the tenant (e.g., /tenant-slug/products).
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('admin_tenant_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Create Tenant
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
