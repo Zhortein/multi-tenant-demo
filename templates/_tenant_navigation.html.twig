@@ -1,0 +1,119 @@
+{% block navbar_extra %}
+    <ul class="navbar-nav">
+        <!-- Notification Bell -->
+        <li class="nav-item dropdown">
+            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell"></i>
+                {% if unread_notifications_count is defined and unread_notifications_count > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ unread_notifications_count > 99 ? '99+' : unread_notifications_count }}
+                        <span class="visually-hidden">unread notifications</span>
+                    </span>
+                {% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+                <li><h6 class="dropdown-header">Recent Notifications</h6></li>
+                {% if recent_notifications is defined and recent_notifications is not empty %}
+                    {% for notification in recent_notifications|slice(0, 3) %}
+                        <li>
+                            <a class="dropdown-item {% if not notification.isRead %}fw-bold{% endif %}" 
+                               href="{{ path('tenant_notification_show', {tenantSlug: tenant.slug, id: notification.id}) }}">
+                                <div class="d-flex align-items-start">
+                                    <i class="{{ notification.bootstrapIcon }} text-{{ notification.bootstrapClass }} me-2 mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ notification.title }}</div>
+                                        <small class="text-muted">
+                                            {{ notification.message|slice(0, 50) }}{% if notification.message|length > 50 %}...{% endif %}
+                                        </small>
+                                        <br>
+                                        <small class="text-muted">{{ notification.createdAt|date('M j, g:i A') }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    {% endfor %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-center" href="{{ path('tenant_notification_index', {tenantSlug: tenant.slug}) }}">
+                            <i class="bi bi-arrow-right"></i> View All Notifications
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <span class="dropdown-item-text text-muted text-center">
+                            <i class="bi bi-bell-slash"></i><br>
+                            No notifications yet
+                        </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-center" href="{{ path('tenant_notification_create', {tenantSlug: tenant.slug}) }}">
+                            <i class="bi bi-plus-circle"></i> Create Notification
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </li>
+        
+        <!-- Tenant Menu -->
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-building"></i> {{ tenant.name }}
+            </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ path('tenant_dashboard', {tenantSlug: tenant.slug}) }}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Data Management</h6></li>
+                <li><a class="dropdown-item" href="{{ path('tenant_product_index', {tenantSlug: tenant.slug}) }}">
+                    <i class="bi bi-box"></i> Products
+                </a></li>
+                <li><a class="dropdown-item" href="{{ path('tenant_document_index', {tenantSlug: tenant.slug}) }}">
+                    <i class="bi bi-file-earmark-text"></i> Documents
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Communication</h6></li>
+                <li><a class="dropdown-item" href="{{ path('tenant_notification_index', {tenantSlug: tenant.slug}) }}">
+                    <i class="bi bi-bell"></i> Notifications
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ path('app_homepage') }}">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a></li>
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block navbar_brand_extra %}
+    <!-- Quick Access Navigation -->
+    <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('tenant_dashboard', {tenantSlug: tenant.slug}) }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('tenant_document_index', {tenantSlug: tenant.slug}) }}">
+                <i class="bi bi-file-earmark-text"></i> Documents
+                {% if storage_stats is defined and storage_stats.total_files > 0 %}
+                    <span class="badge bg-info ms-1">{{ storage_stats.total_files }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('tenant_notification_index', {tenantSlug: tenant.slug}) }}">
+                <i class="bi bi-bell"></i> Notifications
+                {% if notification_stats is defined and notification_stats.unread > 0 %}
+                    <span class="badge bg-warning ms-1">{{ notification_stats.unread }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('tenant_product_index', {tenantSlug: tenant.slug}) }}">
+                <i class="bi bi-box"></i> Products
+            </a>
+        </li>
+    </ul>
+{% endblock %}

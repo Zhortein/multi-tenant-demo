@@ -1,0 +1,44 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}{{ notification_title }} - {{ parent() }}{% endblock %}
+
+{% block content %}
+    <div class="notification-{{ notification_type }}">
+        <h2>
+            {{ notification_icon|default('📧') }} {{ notification_title }}
+        </h2>
+        
+        <div style="margin: 20px 0;">
+            {{ notification_message|nl2br }}
+        </div>
+        
+        {% if notification_type == 'error' %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                <strong>Action Required:</strong> Please review this notification and take appropriate action if necessary.
+            </div>
+        {% elseif notification_type == 'warning' %}
+            <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                <strong>Please Note:</strong> This notification requires your attention.
+            </div>
+        {% elseif notification_type == 'success' %}
+            <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                <strong>Great!</strong> This action was completed successfully.
+            </div>
+        {% endif %}
+        
+        <p style="margin-top: 30px;">
+            <a href="{{ tenant_branding.website_url|default('#') }}/notifications" class="btn">
+                View All Notifications
+            </a>
+        </p>
+        
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #dee2e6;">
+        
+        <p style="font-size: 14px; color: #6c757d;">
+            <strong>Notification Details:</strong><br>
+            Type: {{ notification_type|title }}<br>
+            Sent: {{ "now"|date("Y-m-d H:i:s") }}<br>
+            Tenant: {{ tenant.name }} ({{ tenant.slug }})
+        </p>
+    </div>
+{% endblock %}

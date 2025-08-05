@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ tenant.name }}{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .email-header {
+            background-color: {{ tenant_branding.primary_color|default('#007bff') }};
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .email-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        .email-content {
+            padding: 30px 20px;
+        }
+        .email-footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: {{ tenant_branding.primary_color|default('#007bff') }};
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .notification-info { border-left: 4px solid #17a2b8; padding-left: 15px; }
+        .notification-success { border-left: 4px solid #28a745; padding-left: 15px; }
+        .notification-warning { border-left: 4px solid #ffc107; padding-left: 15px; }
+        .notification-error { border-left: 4px solid #dc3545; padding-left: 15px; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <header class="email-header">
+            <h1>{{ tenant.name }}</h1>
+            {% if tenant.description %}
+                <p>{{ tenant.description }}</p>
+            {% endif %}
+        </header>
+        
+        <main class="email-content">
+            {% block content %}{% endblock %}
+        </main>
+        
+        <footer class="email-footer">
+            <p><strong>{{ tenant.name }}</strong></p>
+            <p>This email was sent from our multi-tenant application</p>
+            <p>Tenant: {{ tenant.slug }} | ID: {{ tenant.id }}</p>
+            {% if tenant_branding.website_url is defined %}
+                <p><a href="{{ tenant_branding.website_url }}">Visit our website</a></p>
+            {% endif %}
+        </footer>
+    </div>
+</body>
+</html>

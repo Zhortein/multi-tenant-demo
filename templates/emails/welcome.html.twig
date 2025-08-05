@@ -1,0 +1,44 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Welcome to {{ tenant.name }}!{% endblock %}
+
+{% block content %}
+    <h2>Welcome to {{ tenant.name }}, {{ user_name }}! 🎉</h2>
+    
+    <p>We're excited to have you join our platform. Your account has been successfully created and you can now access all the features available for {{ tenant.name }}.</p>
+    
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Getting Started</h3>
+        <ul style="margin-bottom: 0;">
+            <li>Explore your dashboard to see an overview of your account</li>
+            <li>Upload and manage your documents securely</li>
+            <li>Stay updated with our notification system</li>
+            <li>Manage your products and inventory</li>
+        </ul>
+    </div>
+    
+    <p style="text-align: center; margin: 30px 0;">
+        {% if login_url is defined %}
+            <a href="{{ login_url }}" class="btn">Access Your Account</a>
+        {% else %}
+            <a href="{{ tenant_branding.website_url|default('#') }}" class="btn">Visit {{ tenant.name }}</a>
+        {% endif %}
+    </p>
+    
+    <div style="border-top: 1px solid #dee2e6; padding-top: 20px; margin-top: 30px;">
+        <h3>Need Help?</h3>
+        <p>If you have any questions or need assistance, don't hesitate to reach out to our support team. We're here to help you make the most of your {{ tenant.name }} experience.</p>
+        
+        <p style="font-size: 14px; color: #6c757d;">
+            <strong>Account Information:</strong><br>
+            Name: {{ user_name }}<br>
+            Organization: {{ tenant.name }}<br>
+            Tenant ID: {{ tenant.slug }}<br>
+            Account Created: {{ "now"|date("Y-m-d H:i:s") }}
+        </p>
+    </div>
+    
+    <p style="margin-top: 30px; font-style: italic; color: #6c757d;">
+        Thank you for choosing {{ tenant.name }}. We look forward to working with you!
+    </p>
+{% endblock %}

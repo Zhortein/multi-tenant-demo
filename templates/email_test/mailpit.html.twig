@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mailpit Interface - {{ current_tenant.name }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="bg-primary text-white p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">
+                            <i class="fas fa-inbox me-2"></i>
+                            Mailpit Email Interface
+                        </h4>
+                        <small class="opacity-75">View all emails sent during testing</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-light text-dark fs-6 me-2">
+                            <i class="fas fa-building me-1"></i>
+                            {{ current_tenant.name }}
+                        </div>
+                        <a href="{{ path('app_email_test_index', {tenantSlug: current_tenant.slug}) }}" 
+                           class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Email Testing
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="alert alert-info m-3 mb-0">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="alert-heading mb-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Mailpit Interface Instructions
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li><strong>View Emails:</strong> All emails sent during testing appear in the list below</li>
+                            <li><strong>Tenant Headers:</strong> Check email headers for tenant-specific information (X-Tenant-*)</li>
+                            <li><strong>Responsive Testing:</strong> Use the mobile/desktop preview buttons</li>
+                            <li><strong>Search:</strong> Filter emails by sender, recipient, or subject</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="https://drenard.devlogiciel.com:8025" class="btn btn-primary btn-sm" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>
+                            Open in New Tab
+                        </a>
+                        <div class="small mt-2 text-muted">
+                            Direct link: <code>https://drenard.devlogiciel.com:8025</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mailpit iframe -->
+            <div class="position-relative" style="height: calc(100vh - 200px);">
+                <iframe 
+                    src="https://drenard.devlogiciel.com:8025" 
+                    class="w-100 h-100 border-0"
+                    title="Mailpit Email Interface"
+                    onload="this.style.opacity=1"
+                    style="opacity: 0; transition: opacity 0.3s;">
+                </iframe>
+                
+                <!-- Loading overlay -->
+                <div class="position-absolute top-50 start-50 translate-middle text-center" id="loading-overlay">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading Mailpit...</span>
+                    </div>
+                    <div class="mt-2 text-muted">Loading Mailpit interface...</div>
+                </div>
+            </div>
+
+            <!-- Footer with tips -->
+            <div class="bg-light p-3 border-top">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Tips for Email Testing
+                        </h6>
+                        <ul class="small mb-0">
+                            <li>Look for tenant-specific from addresses: <code>noreply@{{ current_tenant.slug }}.example.com</code></li>
+                            <li>Check subject prefixes: <code>[{{ current_tenant.name }}]</code></li>
+                            <li>Inspect custom headers for tenant information</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-2">
+                            <i class="fas fa-search text-info me-2"></i>
+                            What to Look For
+                        </h6>
+                        <ul class="small mb-0">
+                            <li>Tenant-specific branding and colors in email templates</li>
+                            <li>Proper HTML rendering and responsive design</li>
+                            <li>Correct tenant context in email footers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Hide loading overlay when iframe loads
+document.querySelector('iframe').addEventListener('load', function() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+});
+
+// Handle iframe load errors
+document.querySelector('iframe').addEventListener('error', function() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.innerHTML = `
+            <div class="alert alert-warning">
+                <h6><i class="fas fa-exclamation-triangle me-2"></i>Cannot Connect to Mailpit</h6>
+                <p class="mb-2">Make sure Mailpit is running:</p>
+                <code class="d-block mb-2">docker compose up -d mailpit</code>
+                <a href="https://drenard.devlogiciel.com:8025" class="btn btn-primary btn-sm" target="_blank">
+                    Try Direct Link
+                </a>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock %}

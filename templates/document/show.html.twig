@@ -1,0 +1,209 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ document.name }} - {{ tenant.name }}{% endblock %}
+
+{% use '_tenant_navigation.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            {% if document.isImage %}
+                                <i class="bi bi-image text-success me-2"></i>
+                            {% else %}
+                                <i class="bi bi-file-earmark text-primary me-2"></i>
+                            {% endif %}
+                            {{ document.name }}
+                        </h4>
+                        <div class="btn-group">
+                            <a href="{{ path('tenant_document_download', {tenantSlug: tenant.slug, id: document.id}) }}" 
+                               class="btn btn-success">
+                                <i class="bi bi-download me-1"></i>
+                                Download
+                            </a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash me-1"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if document.description %}
+                        <div class="alert alert-light">
+                            <i class="bi bi-card-text me-2"></i>
+                            {{ document.description }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-info-circle me-1"></i> File Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Original Filename:</strong></td>
+                                    <td><code>{{ document.originalFilename }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>File Type:</strong></td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ document.mimeType }}</span>
+                                        <small class="text-muted ms-1">.{{ document.fileExtension }}</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>File Size:</strong></td>
+                                    <td>{{ document.formattedFileSize }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        {% if file_exists %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Available
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle me-1"></i>File Missing
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-clock me-1"></i> Timestamps</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Uploaded:</strong></td>
+                                    <td>
+                                        {{ document.createdAt|date('F j, Y') }}<br>
+                                        <small class="text-muted">{{ document.createdAt|date('g:i:s A') }}</small>
+                                    </td>
+                                </tr>
+                                {% if document.updatedAt %}
+                                    <tr>
+                                        <td><strong>Last Modified:</strong></td>
+                                        <td>
+                                            {{ document.updatedAt|date('F j, Y') }}<br>
+                                            <small class="text-muted">{{ document.updatedAt|date('g:i:s A') }}</small>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if document.uploadedBy %}
+                                    <tr>
+                                        <td><strong>Uploaded By:</strong></td>
+                                        <td>{{ document.uploadedBy.firstName }} {{ document.uploadedBy.lastName }}</td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Tenant Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building me-2"></i>
+                        Tenant Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Tenant:</strong> {{ tenant.name }}</p>
+                    <p><strong>Slug:</strong> <code>{{ tenant.slug }}</code></p>
+                    <p class="mb-0">
+                        <i class="bi bi-shield-check text-success me-1"></i>
+                        This document is isolated to this tenant and cannot be accessed by other tenants.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Storage Path Information -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-folder me-2"></i>
+                        Storage Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Storage Path:</strong></p>
+                    <code class="d-block bg-light p-2 rounded">
+                        /var/uploads/tenant_{{ tenant.slug }}/{{ document.filePath }}
+                    </code>
+                    <hr>
+                    <p><strong>Database ID:</strong> {{ document.id }}</p>
+                    <p><strong>Active:</strong> 
+                        {% if document.active %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>
+                        Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('tenant_document_index', {tenantSlug: tenant.slug}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Back to Documents
+                        </a>
+                        <a href="{{ path('tenant_document_upload', {tenantSlug: tenant.slug}) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-cloud-upload me-1"></i>
+                            Upload Another
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                    Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the document <strong>"{{ document.name }}"</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. The file will be permanently removed from storage.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{{ path('tenant_document_delete', {tenantSlug: tenant.slug, id: document.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_document_' ~ document.id) }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>
+                        Delete Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
