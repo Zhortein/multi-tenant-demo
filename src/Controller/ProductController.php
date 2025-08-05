@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Trait\TenantNotificationTrait;
 use App\Entity\Product;
 use App\Entity\Tenant;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,6 +24,7 @@ use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 #[Route('/{tenantSlug}/products', name: 'tenant_product_')]
 class ProductController extends AbstractController
 {
+    use TenantNotificationTrait;
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly TenantContextInterface $tenantContext
@@ -45,9 +47,12 @@ class ProductController extends AbstractController
             ->getRepository(Product::class)
             ->findBy(['active' => true], ['createdAt' => 'DESC']);
 
+        $notificationData = $this->getNotificationDataForNavigation($tenant);
+
         return $this->render('product/index.html.twig', [
             'tenant' => $tenant,
             'products' => $products,
+            ...$notificationData,
         ]);
     }
 
@@ -71,6 +76,7 @@ class ProductController extends AbstractController
 
             if (empty($name) || empty($sku)) {
                 $this->addFlash('error', 'Product name and SKU are required.');
+                $notificationData = $this->getNotificationDataForNavigation($tenant);
                 return $this->render('product/new.html.twig', [
                     'tenant' => $tenant,
                     'name' => $name,
@@ -78,6 +84,7 @@ class ProductController extends AbstractController
                     'price' => $price,
                     'sku' => $sku,
                     'stock_quantity' => $stockQuantity,
+                    ...$notificationData,
                 ]);
             }
 
@@ -88,6 +95,7 @@ class ProductController extends AbstractController
 
             if ($existingProduct) {
                 $this->addFlash('error', 'A product with this SKU already exists.');
+                $notificationData = $this->getNotificationDataForNavigation($tenant);
                 return $this->render('product/new.html.twig', [
                     'tenant' => $tenant,
                     'name' => $name,
@@ -95,6 +103,7 @@ class ProductController extends AbstractController
                     'price' => $price,
                     'sku' => $sku,
                     'stock_quantity' => $stockQuantity,
+                    ...$notificationData,
                 ]);
             }
 
@@ -114,8 +123,11 @@ class ProductController extends AbstractController
             return $this->redirectToRoute('tenant_product_index', ['tenantSlug' => $tenantSlug]);
         }
 
+        $notificationData = $this->getNotificationDataForNavigation($tenant);
+
         return $this->render('product/new.html.twig', [
             'tenant' => $tenant,
+            ...$notificationData,
         ]);
     }
 
@@ -138,9 +150,12 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException('Product not found.');
         }
 
+        $notificationData = $this->getNotificationDataForNavigation($tenant);
+
         return $this->render('product/show.html.twig', [
             'tenant' => $tenant,
             'product' => $product,
+            ...$notificationData,
         ]);
     }
 
@@ -173,9 +188,11 @@ class ProductController extends AbstractController
 
             if (empty($name) || empty($sku)) {
                 $this->addFlash('error', 'Product name and SKU are required.');
+                $notificationData = $this->getNotificationDataForNavigation($tenant);
                 return $this->render('product/edit.html.twig', [
                     'tenant' => $tenant,
                     'product' => $product,
+                    ...$notificationData,
                 ]);
             }
 
@@ -187,9 +204,11 @@ class ProductController extends AbstractController
 
                 if ($existingProduct && $existingProduct->getId() !== $product->getId()) {
                     $this->addFlash('error', 'A product with this SKU already exists.');
+                    $notificationData = $this->getNotificationDataForNavigation($tenant);
                     return $this->render('product/edit.html.twig', [
                         'tenant' => $tenant,
                         'product' => $product,
+                        ...$notificationData,
                     ]);
                 }
             }
@@ -211,9 +230,12 @@ class ProductController extends AbstractController
             ]);
         }
 
+        $notificationData = $this->getNotificationDataForNavigation($tenant);
+
         return $this->render('product/edit.html.twig', [
             'tenant' => $tenant,
             'product' => $product,
+            ...$notificationData,
         ]);
     }
 

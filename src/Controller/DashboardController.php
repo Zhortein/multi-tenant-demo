@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Trait\TenantNotificationTrait;
+use App\Entity\Document;
+use App\Entity\Notification;
 use App\Entity\Tenant;
+use App\Service\TenantStorageService;
+use App\Service\TenantNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 
 /**
  * Main dashboard controller for the multi-tenant demo application.
@@ -19,8 +25,12 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class DashboardController extends AbstractController
 {
+    use TenantNotificationTrait;
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TenantContextInterface $tenantContext,
+        private readonly TenantStorageService $storageService,
+        private readonly TenantNotificationService $notificationService
     ) {
     }
 
@@ -79,6 +89,9 @@ class DashboardController extends AbstractController
             throw $this->createNotFoundException('Tenant not found.');
         }
 
+        // Set tenant context for the services
+        $this->tenantContext->setTenant($tenant);
+
         $stats = [
             'total_products' => $tenant->getProducts()->count(),
             'active_products' => $tenant->getProducts()->filter(fn($p) => $p->isActive())->count(),
@@ -86,9 +99,30 @@ class DashboardController extends AbstractController
             'active_users' => $tenant->getUsers()->filter(fn($u) => $u->isActive())->count(),
         ];
 
+        // Get storage statistics
+        $storageStats = $this->storageService->getStorageStats();
+        
+        // Get notification statistics
+        $notificationStats = $this->notificationService->getNotificationStats();
+
+        // Get recent documents (last 5)
+        $recentDocuments = $this->entityManager->getRepository(Document::class)
+            ->findBy(
+                ['tenant' => $tenant, 'active' => true],
+                ['createdAt' => 'DESC'],
+                5
+            );
+
+        // Get notification data for navigation and dashboard
+        $notificationData = $this->getNotificationDataForNavigation($tenant);
+
         return $this->render('dashboard/tenant.html.twig', [
             'tenant' => $tenant,
             'stats' => $stats,
+            'storage_stats' => $storageStats,
+            'notification_stats' => $notificationStats,
+            'recent_documents' => $recentDocuments,
+            ...$notificationData,
         ]);
     }
 }

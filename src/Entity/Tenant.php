@@ -80,11 +80,25 @@ class Tenant implements TenantInterface
     #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: Product::class)]
     private Collection $products;
 
+    /**
+     * @var Collection<int, Document>
+     */
+    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: Document::class)]
+    private Collection $documents;
+
+    /**
+     * @var Collection<int, Notification>
+     */
+    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: Notification::class)]
+    private Collection $notifications;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->users = new ArrayCollection();
         $this->products = new ArrayCollection();
+        $this->documents = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
     public function getId(): string|int
@@ -221,6 +235,66 @@ class Tenant implements TenantInterface
             // set the owning side to null (unless already changed)
             if ($product->getTenant() === $this) {
                 $product->setTenant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(Document $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setTenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(Document $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            // set the owning side to null (unless already changed)
+            if ($document->getTenant() === $this) {
+                $document->setTenant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setTenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getTenant() === $this) {
+                $notification->setTenant(null);
             }
         }
 

@@ -1,0 +1,274 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ notification.title }} - {{ tenant.name }}{% endblock %}
+
+{% use '_tenant_navigation.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="{{ notification.bootstrapIcon }} text-{{ notification.bootstrapClass }} me-2"></i>
+                            {{ notification.title }}
+                        </h4>
+                        <div>
+                            <span class="badge bg-{{ notification.bootstrapClass }} me-2">
+                                {{ notification.type|title }}
+                            </span>
+                            {% if notification.status == 'sent' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Sent
+                                </span>
+                            {% elseif notification.status == 'failed' %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle me-1"></i>Failed
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-clock me-1"></i>Pending
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-{{ notification.bootstrapClass }}">
+                        <i class="{{ notification.bootstrapIcon }} me-2"></i>
+                        {{ notification.message|nl2br }}
+                    </div>
+
+                    {% if notification.errorMessage %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Error:</strong> {{ notification.errorMessage }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-info-circle me-1"></i> Notification Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Type:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{{ notification.bootstrapClass }}">
+                                            {{ notification.type|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        {% if notification.status == 'sent' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Sent
+                                            </span>
+                                        {% elseif notification.status == 'failed' %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle me-1"></i>Failed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-clock me-1"></i>Pending
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>In-App:</strong></td>
+                                    <td>
+                                        {% if notification.sendInApp %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check me-1"></i>Yes
+                                            </span>
+                                            {% if notification.isRead %}
+                                                <small class="text-muted ms-1">(Read)</small>
+                                            {% else %}
+                                                <small class="text-warning ms-1">(Unread)</small>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x me-1"></i>No
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>
+                                        {% if notification.sendEmail %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-envelope me-1"></i>Yes
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x me-1"></i>No
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-clock me-1"></i> Timestamps</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Created:</strong></td>
+                                    <td>
+                                        {{ notification.createdAt|date('F j, Y') }}<br>
+                                        <small class="text-muted">{{ notification.createdAt|date('g:i:s A') }}</small>
+                                    </td>
+                                </tr>
+                                {% if notification.sentAt %}
+                                    <tr>
+                                        <td><strong>Sent:</strong></td>
+                                        <td>
+                                            {{ notification.sentAt|date('F j, Y') }}<br>
+                                            <small class="text-muted">{{ notification.sentAt|date('g:i:s A') }}</small>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if notification.readAt %}
+                                    <tr>
+                                        <td><strong>Read:</strong></td>
+                                        <td>
+                                            {{ notification.readAt|date('F j, Y') }}<br>
+                                            <small class="text-muted">{{ notification.readAt|date('g:i:s A') }}</small>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if notification.updatedAt %}
+                                    <tr>
+                                        <td><strong>Last Updated:</strong></td>
+                                        <td>
+                                            {{ notification.updatedAt|date('F j, Y') }}<br>
+                                            <small class="text-muted">{{ notification.updatedAt|date('g:i:s A') }}</small>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if notification.recipientEmail %}
+                        <div class="mt-3">
+                            <h6><i class="bi bi-envelope me-1"></i> Email Information</h6>
+                            <div class="alert alert-light">
+                                <strong>Recipient:</strong> {{ notification.recipientEmail }}<br>
+                                <strong>From:</strong> noreply@{{ tenant.domain ? (tenant.domain|split('://')|last) : 'example.com' }}<br>
+                                <strong>Subject:</strong> [{{ tenant.name }}] {{ notification.title }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if not notification.isRead and notification.sendInApp %}
+                        <div class="mt-3">
+                            <form method="post" action="{{ path('tenant_notification_read', {tenantSlug: tenant.slug, id: notification.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('read_notification_' ~ notification.id) }}">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check me-1"></i>
+                                    Mark as Read
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Tenant Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building me-2"></i>
+                        Tenant Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Tenant:</strong> {{ tenant.name }}</p>
+                    <p><strong>Slug:</strong> <code>{{ tenant.slug }}</code></p>
+                    <p class="mb-0">
+                        <i class="bi bi-shield-check text-success me-1"></i>
+                        This notification is isolated to this tenant and cannot be accessed by other tenants.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Recipient Information -->
+            {% if notification.recipient or notification.recipientEmail %}
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-person me-2"></i>
+                            Recipient Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if notification.recipient %}
+                            <p><strong>User:</strong> {{ notification.recipient.firstName }} {{ notification.recipient.lastName }}</p>
+                            <p><strong>Email:</strong> {{ notification.recipient.email }}</p>
+                        {% endif %}
+                        {% if notification.recipientEmail %}
+                            <p><strong>Email Address:</strong> {{ notification.recipientEmail }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Processing Information -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>
+                        Processing Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Database ID:</strong> {{ notification.id }}</p>
+                    <p><strong>Tenant Context:</strong> <code>{{ tenant.slug }}</code></p>
+                    {% if notification.sendEmail %}
+                        <p><strong>Email Processing:</strong> 
+                            {% if notification.status == 'sent' %}
+                                <span class="text-success">Completed</span>
+                            {% elseif notification.status == 'failed' %}
+                                <span class="text-danger">Failed</span>
+                            {% else %}
+                                <span class="text-warning">Queued</span>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                    {% if notification.createdBy %}
+                        <p><strong>Created By:</strong> {{ notification.createdBy.firstName }} {{ notification.createdBy.lastName }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list me-2"></i>
+                        Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('tenant_notification_index', {tenantSlug: tenant.slug}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Back to Notifications
+                        </a>
+                        <a href="{{ path('tenant_notification_create', {tenantSlug: tenant.slug}) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Create Another
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

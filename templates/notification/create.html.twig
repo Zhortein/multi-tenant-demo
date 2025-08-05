@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Notification - {{ tenant.name }}{% endblock %}
+
+{% use '_tenant_navigation.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Create Notification
+                        <small class="text-muted">{{ tenant.name }}</small>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Tenant-Aware Messaging:</strong> Notifications created here will be isolated to this tenant 
+                        and processed with the correct tenant context. Email notifications will be sent with tenant-specific branding.
+                    </div>
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">
+                                <i class="bi bi-tag me-1"></i>
+                                Title <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                   placeholder="Enter notification title">
+                            <div class="form-text">
+                                A clear, descriptive title for the notification.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">
+                                <i class="bi bi-chat-text me-1"></i>
+                                Message <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required
+                                      placeholder="Enter the notification message"></textarea>
+                            <div class="form-text">
+                                The main content of the notification. This will be displayed in the app and included in emails.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="type" class="form-label">
+                                <i class="bi bi-palette me-1"></i>
+                                Type
+                            </label>
+                            <select class="form-select" id="type" name="type">
+                                {% for value, label in notification_types %}
+                                    <option value="{{ value }}" {% if value == 'info' %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                The notification type affects the visual appearance and icon used.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recipient_email" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>
+                                Recipient Email
+                            </label>
+                            <input type="email" class="form-control" id="recipient_email" name="recipient_email"
+                                   placeholder="user@example.com">
+                            <div class="form-text">
+                                Optional. If provided, this email will be used for email notifications.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="send_email" name="send_email" value="1">
+                                <label class="form-check-label" for="send_email">
+                                    <i class="bi bi-envelope me-1"></i>
+                                    Send Email Notification
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                If checked, an email will be sent to the recipient email address.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="send_async" name="send_async" value="1" checked>
+                                <label class="form-check-label" for="send_async">
+                                    <i class="bi bi-arrow-repeat me-1"></i>
+                                    Process Asynchronously
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                If checked, the notification will be queued for background processing via Symfony Messenger.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('tenant_notification_index', {tenantSlug: tenant.slug}) }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Back to Notifications
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Create Notification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Information Cards -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bell me-2"></i>
+                                In-App Notifications
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check text-success me-1"></i> Always enabled by default</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Stored in tenant-specific database</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Read/unread status tracking</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Visual type indicators</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-envelope me-2"></i>
+                                Email Notifications
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check text-success me-1"></i> Tenant-specific sender address</li>
+                                <li><i class="bi bi-check text-success me-1"></i> HTML and plain text versions</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Async processing via Messenger</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Delivery status tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messenger Information -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        Symfony Messenger Integration
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-gear text-primary me-1"></i> How It Works</h6>
+                            <ol>
+                                <li>Notification is created and saved to database</li>
+                                <li>Message is dispatched to Messenger queue</li>
+                                <li>Worker processes message with tenant context</li>
+                                <li>Email is sent and status is updated</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-shield-check text-success me-1"></i> Tenant Isolation</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check text-success me-1"></i> Tenant context preserved in messages</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Database queries automatically filtered</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Cross-tenant access prevented</li>
+                                <li><i class="bi bi-check text-success me-1"></i> Tenant-specific error handling</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

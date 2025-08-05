@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Documents - {{ tenant.name }}{% endblock %}
+
+{% use '_tenant_navigation.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Documents
+                    <small class="text-muted">{{ tenant.name }}</small>
+                </h1>
+                <div>
+                    <a href="{{ path('tenant_document_upload', {tenantSlug: tenant.slug}) }}" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload me-1"></i>
+                        Upload Document
+                    </a>
+                </div>
+            </div>
+
+            <!-- Storage Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ storage_stats.total_files }}</h4>
+                                    <p class="card-text">Total Files</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-files fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">{{ storage_stats.formatted_size }}</h4>
+                                    <p class="card-text">Total Size</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-hdd fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Isolated</h4>
+                                    <p class="card-text">Tenant Storage</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-shield-check fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Storage Button -->
+            <div class="mb-4">
+                <form method="post" action="{{ path('tenant_document_test_storage', {tenantSlug: tenant.slug}) }}" class="d-inline">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="bi bi-gear me-1"></i>
+                        Test Storage Functionality
+                    </button>
+                </form>
+                <small class="text-muted ms-2">Creates a test file to verify tenant-isolated storage</small>
+            </div>
+
+            {% if documents is empty %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No documents found for this tenant. 
+                    <a href="{{ path('tenant_document_upload', {tenantSlug: tenant.slug}) }}" class="alert-link">Upload your first document</a>.
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list me-2"></i>
+                            Document List ({{ documents|length }} files)
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Original Filename</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                        <th>Uploaded</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in documents %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if document.isImage %}
+                                                        <i class="bi bi-image text-success me-2"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-file-earmark text-primary me-2"></i>
+                                                    {% endif %}
+                                                    <div>
+                                                        <strong>{{ document.name }}</strong>
+                                                        {% if document.description %}
+                                                            <br><small class="text-muted">{{ document.description }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <code>{{ document.originalFilename }}</code>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ document.mimeType }}</span>
+                                            </td>
+                                            <td>{{ document.formattedFileSize }}</td>
+                                            <td>
+                                                <small>
+                                                    {{ document.createdAt|date('M j, Y') }}<br>
+                                                    <span class="text-muted">{{ document.createdAt|date('g:i A') }}</span>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('tenant_document_show', {tenantSlug: tenant.slug, id: document.id}) }}" 
+                                                       class="btn btn-outline-primary" title="View Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('tenant_document_download', {tenantSlug: tenant.slug, id: document.id}) }}" 
+                                                       class="btn btn-outline-success" title="Download">
+                                                        <i class="bi bi-download"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
