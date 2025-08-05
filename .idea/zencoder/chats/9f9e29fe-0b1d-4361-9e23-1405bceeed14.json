@@ -1,9 +1,9 @@
 {
-    "checksum": "c99d5ab2b963fc3e8d5422352e023e696f507d2298890f2be1b92bd3381c08c3",
+    "checksum": "59c2158f0dc38da52d7ad2530cbe012ab38332b8a6632299e4b0ea3ef9785305",
     "data": {
     "id": "9f9e29fe-0b1d-4361-9e23-1405bceeed14",
     "createdAt": 1754326431339,
-    "updatedAt": 1754390708198,
+    "updatedAt": 1754391521110,
     "title": "Symfony 7 Multi-Tenant Demo Setup",
     "messages": [
         {
@@ -13896,13 +13896,13 @@
                     "toolCallId": "toolu_01KgPps6RQcdfeuSM5vdfg6b",
                     "status": "IN_PROGRESS",
                     "isHidden": true,
-                    "localResult": "{\"status\":\"IN_PROGRESS\",\"exitCode\":null,\"output\":null}"
+                    "localResult": "{\"status\":\"ERROR\",\"exitCode\":124,\"output\":\"\"}"
                 },
                 {
                     "type": "shellCommand",
                     "command": "cd /home/ubuntu/multi-tenant-demo && timeout 10s docker compose exec php php bin/console messenger:consume async -vv --limit=5",
                     "id": "511c44bc-6df1-4333-a503-69d440edfdf9",
-                    "status": "IN_PROGRESS",
+                    "status": "ERROR",
                     "toolCallId": "toolu_01KgPps6RQcdfeuSM5vdfg6b",
                     "commandsRequiringConfirmation": [
                         {
@@ -13922,7 +13922,9 @@
                             ]
                         }
                     ],
-                    "terminalName": "Zencoder-04c0b5ba-b88d-49e8-b30c-67b4071a71ae",
+                    "exitCode": 124,
+                    "output": "",
+                    "outputPath": "/tmp/Zencoder-04c0b5ba-b88d-49e8-b30c-67b4071a71ae15775971200799893982.log",
                     "isBackground": false,
                     "maxWaitTimeInSeconds": 600
                 }
@@ -13932,6 +13934,390 @@
                 "operationId": "2c41a98a-acfc-4e4b-96de-5280e76bd249"
             },
             "createdAt": 1754390708198,
+            "isInternal": false
+        },
+        {
+            "id": "feed5dd2-63c7-422b-bdc1-3295682d5006",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Let me try a different approach to test the messenger:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01MBveoZVwCJVeSxqu72kASd",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\" ----------- ------- \\r\\n \\u001b[32m Transport \\u001b[39m \\u001b[32m Count \\u001b[39m \\r\\n ----------- ------- \\r\\n  async       0      \\r\\n  failed      0      \\r\\n ----------- ------- \\r\\n\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console messenger:stats",
+                    "id": "98821644-4e5d-4b23-a035-3c3ffc8b1f2f",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_01MBveoZVwCJVeSxqu72kASd",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 0,
+                    "output": " ----------- ------- \r\n \u001b[32m Transport \u001b[39m \u001b[32m Count \u001b[39m \r\n ----------- ------- \r\n  async       0      \r\n  failed      0      \r\n ----------- ------- \r\n\r\n",
+                    "outputPath": "/tmp/Zencoder-5c8775c1-f5ae-43a8-a15f-e1d8a8f929c67508028001194279859.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "14ae8925-08e1-4371-b138-c54208353cf6"
+            },
+            "createdAt": 1754391395020,
+            "isInternal": false
+        },
+        {
+            "id": "8a2f0e4d-add2-4815-9619-3826cb5dd2de",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Perfect! The queue is empty, which means the messages were processed successfully. Let me run a quick test to create some async notifications and then process them:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_013Ykg1ek4M36C7z4K92Drka",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"ERROR\",\"exitCode\":1,\"output\":\"\\r\\n\\u001b[37;41m                                             \\u001b[39;49m\\r\\n\\u001b[37;41m  The \\\"--async-only\\\" option does not exist.  \\u001b[39;49m\\r\\n\\u001b[37;41m                                             \\u001b[39;49m\\r\\n\\r\\n\\u001b[32mapp:test-tenant-features [--email [EMAIL]] [--skip-storage] [--skip-notifications] [--skip-email] [--] <tenant-slug>\\u001b[39m\\r\\n\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console app:test-tenant-features acme-corp --skip-email --async-only",
+                    "id": "3e991d00-13cd-4213-8f3f-8c6a34a8d58e",
+                    "status": "ERROR",
+                    "toolCallId": "toolu_013Ykg1ek4M36C7z4K92Drka",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 1,
+                    "output": "\r\n\u001b[37;41m                                             \u001b[39;49m\r\n\u001b[37;41m  The \"--async-only\" option does not exist.  \u001b[39;49m\r\n\u001b[37;41m                                             \u001b[39;49m\r\n\r\n\u001b[32mapp:test-tenant-features [--email [EMAIL]] [--skip-storage] [--skip-notifications] [--skip-email] [--] <tenant-slug>\u001b[39m\r\n\r\n",
+                    "outputPath": "/tmp/Zencoder-bceebfb8-d104-4729-82d7-475b30a405462495073087948118635.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "e2ad5c87-0f4a-40b3-9b76-0c98713c1a8b"
+            },
+            "createdAt": 1754391404482,
+            "isInternal": false
+        },
+        {
+            "id": "77ca921c-0f5f-4895-990d-d3c0a2844dd5",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Let me create a simple test to verify the async processing works:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01A6RkCsLdXYQMR8JpHAHmfy",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"ERROR\",\"exitCode\":255,\"output\":\"PHP Fatal error:  Uncaught Symfony\\\\Component\\\\DependencyInjection\\\\Exception\\\\ServiceNotFoundException: The \\\"Doctrine\\\\ORM\\\\EntityManagerInterface\\\" service or alias has been removed or inlined when the container was compiled. You should either make it public, or stop using the container directly and use dependency injection instead. in /app/vendor/symfony/dependency-injection/Container.php:241\\r\\nStack trace:\\r\\n#0 /app/vendor/symfony/dependency-injection/Container.php(203): Symfony\\\\Component\\\\DependencyInjection\\\\Container::make(Object(ContainerLsBuSgH\\\\App_KernelDevDebugContainer), 'Doctrine\\\\\\\\ORM\\\\\\\\En...', 1)\\r\\n#1 Command line code(12): Symfony\\\\Component\\\\DependencyInjection\\\\Container->get('Doctrine\\\\\\\\ORM\\\\\\\\En...')\\r\\n#2 {main}\\r\\n  thrown in /app/vendor/symfony/dependency-injection/Container.php on line 241\\r\\n\\r\\nFatal error: Uncaught Symfony\\\\Component\\\\DependencyInjection\\\\Exception\\\\ServiceNotFoundException: The \\\"Doctrine\\\\ORM\\\\EntityManagerInterface\\\" service or alias has been removed or inlined when the container was compiled. You should either make it public, or stop using the container directly and use dependency injection instead. in /app/vendor/symfony/dependency-injection/Container.php:241\\r\\nStack trace:\\r\\n#0 /app/vendor/symfony/dependency-injection/Container.php(203): Symfony\\\\Component\\\\DependencyInjection\\\\Container::make(Object(ContainerLsBuSgH\\\\App_KernelDevDebugContainer), 'Doctrine\\\\\\\\ORM\\\\\\\\En...', 1)\\r\\n#1 Command line code(12): Symfony\\\\Component\\\\DependencyInjection\\\\Container->get('Doctrine\\\\\\\\ORM\\\\\\\\En...')\\r\\n#2 {main}\\r\\n  thrown in /app/vendor/symfony/dependency-injection/Container.php on line 241\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php -r \"\nuse App\\Entity\\Tenant;\nuse App\\Service\\TenantNotificationService;\nuse Doctrine\\ORM\\EntityManagerInterface;\nuse Zhortein\\MultiTenantBundle\\Context\\TenantContextInterface;\n\nrequire_once 'vendor/autoload.php';\n\\$kernel = new App\\Kernel('dev', true);\n\\$kernel->boot();\n\\$container = \\$kernel->getContainer();\n\n\\$entityManager = \\$container->get(EntityManagerInterface::class);\n\\$tenantContext = \\$container->get(TenantContextInterface::class);\n\\$notificationService = \\$container->get(TenantNotificationService::class);\n\n// Find the tenant\n\\$tenant = \\$entityManager->getRepository(Tenant::class)->findOneBy(['slug' => 'acme-corp']);\nif (!\\$tenant) {\n    echo 'Tenant not found\\n';\n    exit(1);\n}\n\n\\$tenantContext->setTenant(\\$tenant);\n\n// Create an async notification\n\\$notification = \\$notificationService->createNotification(\n    title: 'Test Async Notification',\n    message: 'This is a test async notification to verify the message handler works correctly.',\n    type: 'info',\n    recipientEmail: null,\n    sendEmail: false,\n    sendAsync: true\n);\n\necho 'Created async notification with ID: ' . \\$notification->getId() . \\\"\\n\\\";\necho 'Status: ' . \\$notification->getStatus() . \\\"\\n\\\";\n\"",
+                    "id": "e1a143c7-2da8-415d-a641-6aea43313143",
+                    "status": "ERROR",
+                    "toolCallId": "toolu_01A6RkCsLdXYQMR8JpHAHmfy",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 255,
+                    "output": "PHP Fatal error:  Uncaught Symfony\\Component\\DependencyInjection\\Exception\\ServiceNotFoundException: The \"Doctrine\\ORM\\EntityManagerInterface\" service or alias has been removed or inlined when the container was compiled. You should either make it public, or stop using the container directly and use dependency injection instead. in /app/vendor/symfony/dependency-injection/Container.php:241\r\nStack trace:\r\n#0 /app/vendor/symfony/dependency-injection/Container.php(203): Symfony\\Component\\DependencyInjection\\Container::make(Object(ContainerLsBuSgH\\App_KernelDevDebugContainer), 'Doctrine\\\\ORM\\\\En...', 1)\r\n#1 Command line code(12): Symfony\\Component\\DependencyInjection\\Container->get('Doctrine\\\\ORM\\\\En...')\r\n#2 {main}\r\n  thrown in /app/vendor/symfony/dependency-injection/Container.php on line 241\r\n\r\nFatal error: Uncaught Symfony\\Component\\DependencyInjection\\Exception\\ServiceNotFoundException: The \"Doctrine\\ORM\\EntityManagerInterface\" service or alias has been removed or inlined when the container was compiled. You should either make it public, or stop using the container directly and use dependency injection instead. in /app/vendor/symfony/dependency-injection/Container.php:241\r\nStack trace:\r\n#0 /app/vendor/symfony/dependency-injection/Container.php(203): Symfony\\Component\\DependencyInjection\\Container::make(Object(ContainerLsBuSgH\\App_KernelDevDebugContainer), 'Doctrine\\\\ORM\\\\En...', 1)\r\n#1 Command line code(12): Symfony\\Component\\DependencyInjection\\Container->get('Doctrine\\\\ORM\\\\En...')\r\n#2 {main}\r\n  thrown in /app/vendor/symfony/dependency-injection/Container.php on line 241\r\n",
+                    "outputPath": "/tmp/Zencoder-5035765d-91b1-42aa-9faf-7b53476d7b3116349454004381103932.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "400675b8-9ff8-4fb1-8706-b33e23c1b026"
+            },
+            "createdAt": 1754391416655,
+            "isInternal": false
+        },
+        {
+            "id": "2defc79e-0500-4c8f-864e-fd5a95626368",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Let me test the messenger processing in a simpler way by checking the logs:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01CAaogjMnUxNyBpP2xYnxUh",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\"\\r\\n\\u001b[30;42m                                                                                                                        \\u001b[39;49m\\r\\n\\u001b[30;42m [OK] Consuming messages from transport \\\"async\\\".                                                                        \\u001b[39;49m\\r\\n\\u001b[30;42m                                                                                                                        \\u001b[39;49m\\r\\n\\r\\n\\u001b[39;49m // \\u001b[39;49mThe worker will automatically exit once it has processed 1 messages, been running for 5s or received a stop signal  \\r\\n\\u001b[39;49m // \\u001b[39;49mvia the messenger:stop-workers command.                                                                             \\r\\n\\r\\n\\u001b[39;49m // \\u001b[39;49mQuit the worker with CONTROL-C.                                                                                     \\r\\n\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console messenger:consume async --limit=1 --time-limit=5 -v",
+                    "id": "57fd19f2-534c-4632-a954-2f2b8711e495",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_01CAaogjMnUxNyBpP2xYnxUh",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 0,
+                    "output": "\r\n\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n\u001b[30;42m [OK] Consuming messages from transport \"async\".                                                                        \u001b[39;49m\r\n\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n\r\n\u001b[39;49m // \u001b[39;49mThe worker will automatically exit once it has processed 1 messages, been running for 5s or received a stop signal  \r\n\u001b[39;49m // \u001b[39;49mvia the messenger:stop-workers command.                                                                             \r\n\r\n\u001b[39;49m // \u001b[39;49mQuit the worker with CONTROL-C.                                                                                     \r\n\r\n",
+                    "outputPath": "/tmp/Zencoder-e34c09b2-940b-4e7e-8f0b-cdca06618f195570700251788779812.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "ccae9a53-e666-483c-8016-18ae8b066f8e"
+            },
+            "createdAt": 1754391431364,
+            "isInternal": false
+        },
+        {
+            "id": "2655bb53-a2f1-4ccb-a8ce-f4663f70fd8e",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "The queue is empty, which is good. Let me create a simple command to test the async processing:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01Y9JD7HA9Pn3kSMst8SeLFj",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "src/Command/TestAsyncNotificationCommand.php",
+                                "fsPath": "/home/ubuntu/multi-tenant-demo/src/Command/TestAsyncNotificationCommand.php"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- /home/ubuntu/multi-tenant-demo/src/Command/TestAsyncNotificationCommand.php\n+++ /home/ubuntu/multi-tenant-demo/src/Command/TestAsyncNotificationCommand.php\n@@ -0,0 +1,85 @@\n+<?php\n+\n+declare(strict_types=1);\n+\n+namespace App\\Command;\n+\n+use App\\Entity\\Tenant;\n+use App\\Service\\TenantNotificationService;\n+use Doctrine\\ORM\\EntityManagerInterface;\n+use Symfony\\Component\\Console\\Attribute\\AsCommand;\n+use Symfony\\Component\\Console\\Command\\Command;\n+use Symfony\\Component\\Console\\Input\\InputArgument;\n+use Symfony\\Component\\Console\\Input\\InputInterface;\n+use Symfony\\Component\\Console\\Output\\OutputInterface;\n+use Symfony\\Component\\Console\\Style\\SymfonyStyle;\n+use Zhortein\\MultiTenantBundle\\Context\\TenantContextInterface;\n+\n+/**\n+ * Command to test async notification processing.\n+ */\n+#[AsCommand(\n+    name: 'app:test-async-notification',\n+    description: 'Test async notification processing with proper tenant context'\n+)]\n+final class TestAsyncNotificationCommand extends Command\n+{\n+    public function __construct(\n+        private readonly EntityManagerInterface $entityManager,\n+        private readonly TenantContextInterface $tenantContext,\n+        private readonly TenantNotificationService $notificationService\n+    ) {\n+        parent::__construct();\n+    }\n+\n+    protected function configure(): void\n+    {\n+        $this->addArgument('tenant-slug', InputArgument::REQUIRED, 'The tenant slug');\n+    }\n+\n+    protected function execute(InputInterface $input, OutputInterface $output): int\n+    {\n+        $io = new SymfonyStyle($input, $output);\n+        $tenantSlug = $input->getArgument('tenant-slug');\n+\n+        // Find the tenant\n+        $tenant = $this->entityManager->getRepository(Tenant::class)\n+            ->findOneBy(['slug' => $tenantSlug, 'active' => true]);\n+\n+        if (!$tenant) {\n+            $io->error(sprintf('Tenant \"%s\" not found or inactive.', $tenantSlug));\n+            return Command::FAILURE;\n+        }\n+\n+        // Set tenant context\n+        $this->tenantContext->setTenant($tenant);\n+\n+        $io->info(sprintf('Testing async notification for tenant: %s (%s)', $tenant->getName(), $tenant->getSlug()));\n+\n+        try {\n+            // Create an async notification\n+            $notification = $this->notificationService->createNotification(\n+                title: 'Test Async Notification',\n+                message: 'This is a test async notification to verify the message handler works correctly with the fixed tenant context.',\n+                type: 'info',\n+                recipientEmail: null,\n+                sendEmail: false,\n+                sendAsync: true\n+            );\n+\n+            $io->success(sprintf(\n+                'Created async notification with ID: %d, Status: %s',\n+                $notification->getId(),\n+                $notification->getStatus()\n+            ));\n+\n+            $io->note('The notification has been queued for async processing. Run \"php bin/console messenger:consume async\" to process it.');\n+\n+            return Command::SUCCESS;\n+\n+        } catch (\\Exception $e) {\n+            $io->error(sprintf('Failed to create async notification: %s', $e->getMessage()));\n+            return Command::FAILURE;\n+        }\n+    }\n+}",
+                    "refToolCallId": "toolu_01Y9JD7HA9Pn3kSMst8SeLFj"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01EZhrwQeZdecg8DwxYkfbwv",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\"\\r\\n\\u001b[32m                                                                                                                        \\u001b[39m\\r\\n\\u001b[32m [INFO] Testing async notification for tenant: Acme Corporation (acme-corp)                                             \\u001b[39m\\r\\n\\u001b[32m                                                                                                                        \\u001b[39m\\r\\n\\r\\n\\u001b[30;42m                                                                                                                        \\u001b[39;49m\\r\\n\\u001b[30;42m [OK] Created async notification with ID: 32, Status: pending                                                           \\u001b[39;49m\\r\\n\\u001b[30;42m                                                                                                                        \\u001b[39;49m\\r\\n\\r\\n\\u001b[33m ! [NOTE] The notification has been queued for async processing. Run \\\"php bin/console messenger:consume async\\\" to       \\u001b[39m\\r\\n\\u001b[33m !        process it.                                                                                                   \\u001b[39m\\r\\n\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console app:test-async-notification acme-corp",
+                    "id": "1dca2d61-b186-43db-a849-2b498eaa95c1",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_01EZhrwQeZdecg8DwxYkfbwv",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 0,
+                    "output": "\r\n\u001b[32m                                                                                                                        \u001b[39m\r\n\u001b[32m [INFO] Testing async notification for tenant: Acme Corporation (acme-corp)                                             \u001b[39m\r\n\u001b[32m                                                                                                                        \u001b[39m\r\n\r\n\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n\u001b[30;42m [OK] Created async notification with ID: 32, Status: pending                                                           \u001b[39;49m\r\n\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n\r\n\u001b[33m ! [NOTE] The notification has been queued for async processing. Run \"php bin/console messenger:consume async\" to       \u001b[39m\r\n\u001b[33m !        process it.                                                                                                   \u001b[39m\r\n\r\n",
+                    "outputPath": "/tmp/Zencoder-afcf9a7a-767d-49c1-903e-6e8eb64abfa78207658465361947302.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "d4f30cb0-6ff6-48af-8fc9-de054ed4cfd3"
+            },
+            "createdAt": 1754391447864,
+            "isInternal": false
+        },
+        {
+            "id": "475efee4-f6bf-46b2-9b12-5d8c987a5fbf",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Great! Now let me check the queue status:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01MCdjx3BUVteK3BUvWF6iRB",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\" ----------- ------- \\r\\n \\u001b[32m Transport \\u001b[39m \\u001b[32m Count \\u001b[39m \\r\\n ----------- ------- \\r\\n  async       1      \\r\\n  failed      0      \\r\\n ----------- ------- \\r\\n\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console messenger:stats",
+                    "id": "41b64dcd-fd5f-4704-b5f4-c5213d8a2fa9",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_01MCdjx3BUVteK3BUvWF6iRB",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 0,
+                    "output": " ----------- ------- \r\n \u001b[32m Transport \u001b[39m \u001b[32m Count \u001b[39m \r\n ----------- ------- \r\n  async       1      \r\n  failed      0      \r\n ----------- ------- \r\n\r\n",
+                    "outputPath": "/tmp/Zencoder-04d27cde-710e-40fe-a824-ed6e4610a6604725833751334905079.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "c69559d6-88e4-4a0a-bd14-aa1881a1bfba"
+            },
+            "createdAt": 1754391479614,
+            "isInternal": false
+        },
+        {
+            "id": "8db82f0e-5c0d-4934-87a2-88819354b776",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Perfect! There's 1 message in the async queue. Now let me process it:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_011gBTvnpgrMVLrnpUUgSHMP",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\"\\r\\n\\u001b[30;42m                                                                                                                        \\u001b[39;49m\\r\\n\\u001b[30;42m [OK] Consuming messages from transport \\\"async\\\".                                                                        \\u001b[39;49m\\r\\n\\u001b[30;42m                                                                                                                        \\u001b[39;49m\\r\\n\\r\\n\\u001b[39;49m // \\u001b[39;49mThe worker will automatically exit once it has processed 1 messages or received a stop signal via the               \\r\\n\\u001b[39;49m // \\u001b[39;49mmessenger:stop-workers command.                                                                                     \\r\\n\\r\\n\\u001b[39;49m // \\u001b[39;49mQuit the worker with CONTROL-C.                                                                                     \\r\\n\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[messenger]\\u001b[39m Received message \\u001b[33mApp\\\\Message\\\\SendNotificationMessage\\u001b[39m \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mclass\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113mApp\\\\Message\\\\SendNotificationMessage\\u001b[0;38;5;208m\\\"\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[app]\\u001b[39m Processing notification message \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mnotification_id\\u001b[0;38;5;208m\\\" => \\u001b[1;38;5;38m32\\u001b[0;38;5;208m,\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mtenant_slug\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113macme-corp\\u001b[0;38;5;208m\\\",\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mtenant_id\\u001b[0;38;5;208m\\\" => \\u001b[1;38;5;38m1\\u001b[0;38;5;208m\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[app]\\u001b[39m Notification processed successfully \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mnotification_id\\u001b[0;38;5;208m\\\" => \\u001b[1;38;5;38m32\\u001b[0;38;5;208m,\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mtenant_slug\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113macme-corp\\u001b[0;38;5;208m\\\"\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[app]\\u001b[39m Notification processed successfully \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mnotification_id\\u001b[0;38;5;208m\\\" => \\u001b[1;38;5;38m32\\u001b[0;38;5;208m,\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mtenant_slug\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113macme-corp\\u001b[0;38;5;208m\\\"\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[messenger]\\u001b[39m Message \\u001b[33mApp\\\\Message\\\\SendNotificationMessage\\u001b[39m handled by \\u001b[33mApp\\\\MessageHandler\\\\SendNotificationMessageHandler::__invoke\\u001b[39m \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mclass\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113mApp\\\\Message\\\\SendNotificationMessage\\u001b[0;38;5;208m\\\",\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mhandler\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113mApp\\\\MessageHandler\\\\SendNotificationMessageHandler::__invoke\\u001b[0;38;5;208m\\\"\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[messenger]\\u001b[39m \\u001b[33mApp\\\\Message\\\\SendNotificationMessage\\u001b[39m was handled successfully (acknowledging to transport). \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mclass\\u001b[0;38;5;208m\\\" => \\\"\\u001b[1;38;5;113mApp\\\\Message\\\\SendNotificationMessage\\u001b[0;38;5;208m\\\",\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mmessage_id\\u001b[0;38;5;208m\\\" => \\u001b[1;38;5;38m67\\u001b[0;38;5;208m\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[messenger]\\u001b[39m Stopping worker. \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mtransport_names\\u001b[0;38;5;208m\\\" => [\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[1;38;5;113masync\\u001b[0;38;5;208m\\\"\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n10:58:15 \\u001b[32mINFO     \\u001b[39m \\u001b[33m[messenger]\\u001b[39m Worker stopped due to maximum count of \\u001b[33m1\\u001b[39m messages processed \\u001b[0;38;5;208m[\\u001b[m\\u001b[0;38;5;208m\\\"\\u001b[38;5;113mcount\\u001b[0;38;5;208m\\\" => \\u001b[1;38;5;38m1\\u001b[0;38;5;208m\\u001b[m\\u001b[0;38;5;208m]\\u001b[m\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console messenger:consume async --limit=1 -vv",
+                    "id": "5b408f2a-59ad-4f37-a660-89bf342f1ab0",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_011gBTvnpgrMVLrnpUUgSHMP",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 0,
+                    "output": "\r\n\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n\u001b[30;42m [OK] Consuming messages from transport \"async\".                                                                        \u001b[39;49m\r\n\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n\r\n\u001b[39;49m // \u001b[39;49mThe worker will automatically exit once it has processed 1 messages or received a stop signal via the               \r\n\u001b[39;49m // \u001b[39;49mmessenger:stop-workers command.                                                                                     \r\n\r\n\u001b[39;49m // \u001b[39;49mQuit the worker with CONTROL-C.                                                                                     \r\n\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[messenger]\u001b[39m Received message \u001b[33mApp\\Message\\SendNotificationMessage\u001b[39m \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mclass\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113mApp\\Message\\SendNotificationMessage\u001b[0;38;5;208m\"\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[app]\u001b[39m Processing notification message \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mnotification_id\u001b[0;38;5;208m\" => \u001b[1;38;5;38m32\u001b[0;38;5;208m,\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mtenant_slug\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113macme-corp\u001b[0;38;5;208m\",\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mtenant_id\u001b[0;38;5;208m\" => \u001b[1;38;5;38m1\u001b[0;38;5;208m\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[app]\u001b[39m Notification processed successfully \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mnotification_id\u001b[0;38;5;208m\" => \u001b[1;38;5;38m32\u001b[0;38;5;208m,\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mtenant_slug\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113macme-corp\u001b[0;38;5;208m\"\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[app]\u001b[39m Notification processed successfully \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mnotification_id\u001b[0;38;5;208m\" => \u001b[1;38;5;38m32\u001b[0;38;5;208m,\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mtenant_slug\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113macme-corp\u001b[0;38;5;208m\"\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[messenger]\u001b[39m Message \u001b[33mApp\\Message\\SendNotificationMessage\u001b[39m handled by \u001b[33mApp\\MessageHandler\\SendNotificationMessageHandler::__invoke\u001b[39m \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mclass\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113mApp\\Message\\SendNotificationMessage\u001b[0;38;5;208m\",\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mhandler\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113mApp\\MessageHandler\\SendNotificationMessageHandler::__invoke\u001b[0;38;5;208m\"\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[messenger]\u001b[39m \u001b[33mApp\\Message\\SendNotificationMessage\u001b[39m was handled successfully (acknowledging to transport). \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mclass\u001b[0;38;5;208m\" => \"\u001b[1;38;5;113mApp\\Message\\SendNotificationMessage\u001b[0;38;5;208m\",\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mmessage_id\u001b[0;38;5;208m\" => \u001b[1;38;5;38m67\u001b[0;38;5;208m\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[messenger]\u001b[39m Stopping worker. \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mtransport_names\u001b[0;38;5;208m\" => [\u001b[m\u001b[0;38;5;208m\"\u001b[1;38;5;113masync\u001b[0;38;5;208m\"\u001b[m\u001b[0;38;5;208m]\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n10:58:15 \u001b[32mINFO     \u001b[39m \u001b[33m[messenger]\u001b[39m Worker stopped due to maximum count of \u001b[33m1\u001b[39m messages processed \u001b[0;38;5;208m[\u001b[m\u001b[0;38;5;208m\"\u001b[38;5;113mcount\u001b[0;38;5;208m\" => \u001b[1;38;5;38m1\u001b[0;38;5;208m\u001b[m\u001b[0;38;5;208m]\u001b[m\r\n",
+                    "outputPath": "/tmp/Zencoder-7888571c-30b4-42fa-a794-6fd4a754dd8f9206244305449613344.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "ed5496d6-2e82-453a-ac2e-08b4ecd63a94"
+            },
+            "createdAt": 1754391489283,
+            "isInternal": false
+        },
+        {
+            "id": "48d7efee-ae4b-4ebf-8da7-f32eb005bc44",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Excellent! The message was processed successfully. I can see in the logs:\n\n1. ✅ **Message received**: `App\\Message\\SendNotificationMessage`\n2. ✅ **Tenant context set**: `tenant_slug: acme-corp, tenant_id: 1`\n3. ✅ **Notification processed**: `notification_id: 32`\n4. ✅ **Message handled successfully**: No errors\n\nLet me check the queue status to confirm it's empty:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_016P5cA3f3nM16nonnB8xEKS",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\" ----------- ------- \\r\\n \\u001b[32m Transport \\u001b[39m \\u001b[32m Count \\u001b[39m \\r\\n ----------- ------- \\r\\n  async       0      \\r\\n  failed      0      \\r\\n ----------- ------- \\r\\n\\r\\n\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd /home/ubuntu/multi-tenant-demo && docker compose exec php php bin/console messenger:stats",
+                    "id": "36403778-06ad-409b-8af7-bae017ed076b",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_016P5cA3f3nM16nonnB8xEKS",
+                    "commandsRequiringConfirmation": [],
+                    "exitCode": 0,
+                    "output": " ----------- ------- \r\n \u001b[32m Transport \u001b[39m \u001b[32m Count \u001b[39m \r\n ----------- ------- \r\n  async       0      \r\n  failed      0      \r\n ----------- ------- \r\n\r\n",
+                    "outputPath": "/tmp/Zencoder-e45242d3-e1f1-4eee-88d1-5472b600c4933566568333883710141.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "34d4a26f-e12b-475a-bbd0-e7a8ef007389"
+            },
+            "createdAt": 1754391497776,
+            "isInternal": false
+        },
+        {
+            "id": "0b8101e2-6f23-42be-b55d-3bdf6b042ed2",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Perfect! The queue is empty and there are no failed messages.\n\n## 5. Clean up the test command"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01BgAPQRiS96VwQ5oDTXq5Dt",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true,
+                    "localResult": "{\"status\":\"SUCCESS\",\"exitCode\":0,\"output\":\"\"}"
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "rm /home/ubuntu/multi-tenant-demo/src/Command/TestAsyncNotificationCommand.php",
+                    "id": "3c832edf-d58d-419b-b16e-911acd80882a",
+                    "status": "SUCCESS",
+                    "toolCallId": "toolu_01BgAPQRiS96VwQ5oDTXq5Dt",
+                    "commandsRequiringConfirmation": [
+                        {
+                            "name": "rm",
+                            "arguments": [
+                                "/home/ubuntu/multi-tenant-demo/src/Command/TestAsyncNotificationCommand.php"
+                            ]
+                        }
+                    ],
+                    "exitCode": 0,
+                    "output": "",
+                    "outputPath": "/tmp/Zencoder-ff7ae223-068b-42d5-94ce-2f8ae1e0ab8d7601021443493546026.log",
+                    "isBackground": false,
+                    "maxWaitTimeInSeconds": 600
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "cb76c839-6796-4ea8-83cb-c9fbc24278fd"
+            },
+            "createdAt": 1754391508392,
+            "isInternal": false
+        },
+        {
+            "id": "5c49836f-c9f4-4be6-acf9-5d1e0e05acb3",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "## Summary\n\nI have successfully fixed the Symfony Messenger issue with the multi-tenant context. Here's what was resolved:\n\n### ✅ **Issue Identified**\n\nThe error was occurring because the `SendNotificationMessageHandler` was trying to call a non-existent method:\n```php\n$this->tenantContext->setCurrentTenantBySlug($message->getTenantSlug());\n```\n\nThe `TenantContextInterface` only provides:\n- `setTenant(TenantInterface $tenant): void`\n- `getTenant(): ?TenantInterface`\n- `hasTenant(): bool`\n- `clear(): void`\n\n### ✅ **Fix Implemented**\n\n**Updated `SendNotificationMessageHandler`**:\n\n1. **Proper Tenant Resolution**:\n   ```php\n   // Find and set the tenant context for this message processing\n   $tenant = $this->entityManager->getRepository(Tenant::class)\n       ->findOneBy(['slug' => $message->getTenantSlug(), 'active' => true]);\n\n   if (!$tenant) {\n       $this->logger->error('Tenant not found for message processing', [\n           'tenant_slug' => $message->getTenantSlug(),\n           'notification_id' => $message->getNotificationId(),\n       ]);\n       return;\n   }\n\n   // Set the tenant context\n   $this->tenantContext->setTenant($tenant);\n   ```\n\n2. **Enhanced Error Handling**:\n   ```php\n   // Try to mark notification as failed if it exists\n   try {\n       // Ensure tenant context is set for error handling\n       if (!$this->tenantContext->hasTenant()) {\n           $tenant = $this->entityManager->getRepository(Tenant::class)\n               ->findOneBy(['slug' => $message->getTenantSlug(), 'active' => true]);\n           if ($tenant) {\n               $this->tenantContext->setTenant($tenant);\n           }\n       }\n       // ... mark as failed logic\n   } catch (\\Exception $markFailedException) {\n       // Log both original and mark-failed errors\n   }\n   ```\n\n3. **Improved Logging**:\n   - Added tenant ID to log messages\n   - Enhanced error context\n   - Separate error handling for marking notifications as failed\n\n### ✅ **Testing Results**\n\n**Successful Message Processing**:\n```\n10:58:15 INFO [messenger] Received message App\\Message\\SendNotificationMessage\n10:58:15 INFO [app] Processing notification message [\"notification_id\" => 32, \"tenant_slug\" => \"acme-corp\", \"tenant_id\" => 1]\n10:58:15 INFO [app] Notification processed successfully [\"notification_id\" => 32, \"tenant_slug\" => \"acme-corp\"]\n10:58:15 INFO [messenger] Message App\\Message\\SendNotificationMessage handled successfully\n```\n\n**Queue Status**:\n- ✅ Messages processed successfully\n- ✅ No failed messages\n- ✅ Queue empty after processing\n\n### ✅ **Key Improvements**\n\n1. **Correct API Usage**: Uses the proper `setTenant()` method with a `TenantInterface` object\n2. **Robust Error Handling**: Handles both tenant resolution and notification processing errors\n3. **Better Logging**: Provides detailed context for debugging\n4. **Tenant Isolation**: Maintains proper tenant context during async processing\n5. **Graceful Degradation**: Handles missing tenants without crashing\n\n### ✅ **Technical Benefits**\n\n- **Multi-tenant Safety**: Ensures proper tenant context in async processing\n- **Error Resilience**: Gracefully handles various error scenarios\n- **Debugging Support**: Comprehensive logging for troubleshooting\n- **Performance**: Efficient tenant lookup and context setting\n- **Maintainability**: Clean, well-documented code following Symfony best practices\n\nThe async notification processing now works correctly with proper tenant isolation, ensuring that messages are processed in the correct tenant context without the previous `setCurrentTenantBySlug()` method error."
+                },
+                {
+                    "type": "codePatch",
+                    "diffs": [
+                        {
+                            "path": "src/MessageHandler/SendNotificationMessageHandler.php",
+                            "patch": "@@ -86,16 +86,39 @@\n cation;%0A\n+use App%5CEntity%5CTenant;%0A\n use App%5C\n@@ -150,16 +150,16 @@\n essage;%0A\n-\n use App%5C\n@@ -1097,17 +1097,26 @@\n      // \n-S\n+Find and s\n et the t\n@@ -1168,24 +1168,34 @@\n         \n+ $tenant =\n  $this-%3E\n tenantCo\n@@ -1190,71 +1190,533 @@\n is-%3E\n-t\n en\n-antContext-%3EsetCurrentTenantBySlug($message-%3EgetTenantSlug()\n+tityManager-%3EgetRepository(Tenant::class)%0A                -%3EfindOneBy(%5B'slug' =%3E $message-%3EgetTenantSlug(), 'active' =%3E true%5D);%0A%0A            if (!$tenant) %7B%0A                $this-%3Elogger-%3Eerror('Tenant not found for message processing', %5B%0A                    'tenant_slug' =%3E $message-%3EgetTenantSlug(),%0A                    'notification_id' =%3E $message-%3EgetNotificationId(),%0A                %5D);%0A                return;%0A            %7D%0A%0A            // Set the tenant context%0A            $this-%3EtenantContext-%3EsetTenant($tenant\n );%0A%0A\n@@ -1904,32 +1904,81 @@\n etTenantSlug(),%0A\n+                'tenant_id' =%3E $tenant-%3EgetId(),%0A\n             %5D);%0A\n@@ -3146,17 +3146,24 @@\n      // \n-M\n+Try to m\n ark noti\n@@ -3194,16 +3194,480 @@\n  exists%0A\n+            try %7B%0A                // Ensure tenant context is set for error handling%0A                if (!$this-%3EtenantContext-%3EhasTenant()) %7B%0A                    $tenant = $this-%3EentityManager-%3EgetRepository(Tenant::class)%0A                        -%3EfindOneBy(%5B'slug' =%3E $message-%3EgetTenantSlug(), 'active' =%3E true%5D);%0A                    if ($tenant) %7B%0A                        $this-%3EtenantContext-%3EsetTenant($tenant);%0A                    %7D%0A                %7D%0A%0A    \n         \n@@ -3751,32 +3751,36 @@\n                 \n+    \n -%3Efind($message-\n@@ -3814,17 +3814,25 @@\n         \n-%0A\n+    %0A    \n         \n@@ -3864,32 +3864,36 @@\n                 \n+    \n $notification-%3Em\n@@ -3935,24 +3935,28 @@\n             \n+    \n $this-%3Eentit\n@@ -3974,16 +3974,463 @@\n lush();%0A\n+                %7D%0A            %7D catch (%5CException $markFailedException) %7B%0A                $this-%3Elogger-%3Eerror('Failed to mark notification as failed', %5B%0A                    'notification_id' =%3E $message-%3EgetNotificationId(),%0A                    'tenant_slug' =%3E $message-%3EgetTenantSlug(),%0A                    'original_error' =%3E $e-%3EgetMessage(),%0A                    'mark_failed_error' =%3E $markFailedException-%3EgetMessage(),%0A                %5D);%0A\n         \n",
+                            "isNew": false,
+                            "isApplied": true
+                        }
+                    ]
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "a179e8b8-0e2a-47fe-8511-78ecd33902a5",
+                "usageStatistics": {
+                    "llmCallsUsedForAnswer": 23.0,
+                    "llmCallsUsedTotal": 216.0,
+                    "llmCallsLimit": 1500.0,
+                    "limitRenewalMillisecondTimestamp": 1754468624184
+                }
+            },
+            "createdAt": 1754391521110,
             "isInternal": false
         }
     ],
