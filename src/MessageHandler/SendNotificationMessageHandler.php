@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MessageHandler;
 
 use App\Entity\Notification;
+use App\Entity\Tenant;
 use App\Message\SendNotificationMessage;
 use App\Service\TenantNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,12 +34,25 @@ final readonly class SendNotificationMessageHandler
     public function __invoke(SendNotificationMessage $message): void
     {
         try {
-            // Set the tenant context for this message processing
-            $this->tenantContext->setCurrentTenantBySlug($message->getTenantSlug());
+            // Find and set the tenant context for this message processing
+            $tenant = $this->entityManager->getRepository(Tenant::class)
+                ->findOneBy(['slug' => $message->getTenantSlug(), 'active' => true]);
+
+            if (!$tenant) {
+                $this->logger->error('Tenant not found for message processing', [
+                    'tenant_slug' => $message->getTenantSlug(),
+                    'notification_id' => $message->getNotificationId(),
+                ]);
+                return;
+            }
+
+            // Set the tenant context
+            $this->tenantContext->setTenant($tenant);
 
             $this->logger->info('Processing notification message', [
                 'notification_id' => $message->getNotificationId(),
                 'tenant_slug' => $message->getTenantSlug(),
+                'tenant_id' => $tenant->getId(),
             ]);
 
             // Find the notification (will be automatically filtered by tenant)
@@ -68,13 +82,31 @@ final readonly class SendNotificationMessageHandler
                 'error' => $e->getMessage(),
             ]);
 
-            // Mark notification as failed if it exists
-            $notification = $this->entityManager->getRepository(Notification::class)
-                ->find($message->getNotificationId());
-            
-            if ($notification) {
-                $notification->markAsFailed($e->getMessage());
-                $this->entityManager->flush();
+            // Try to mark notification as failed if it exists
+            try {
+                // Ensure tenant context is set for error handling
+                if (!$this->tenantContext->hasTenant()) {
+                    $tenant = $this->entityManager->getRepository(Tenant::class)
+                        ->findOneBy(['slug' => $message->getTenantSlug(), 'active' => true]);
+                    if ($tenant) {
+                        $this->tenantContext->setTenant($tenant);
+                    }
+                }
+
+                $notification = $this->entityManager->getRepository(Notification::class)
+                    ->find($message->getNotificationId());
+                
+                if ($notification) {
+                    $notification->markAsFailed($e->getMessage());
+                    $this->entityManager->flush();
+                }
+            } catch (\Exception $markFailedException) {
+                $this->logger->error('Failed to mark notification as failed', [
+                    'notification_id' => $message->getNotificationId(),
+                    'tenant_slug' => $message->getTenantSlug(),
+                    'original_error' => $e->getMessage(),
+                    'mark_failed_error' => $markFailedException->getMessage(),
+                ]);
             }
 
             throw $e;
