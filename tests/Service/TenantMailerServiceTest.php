@@ -17,7 +17,7 @@ final class TenantMailerServiceTest extends TestCase
     public function testTenantMetadataHeadersAreNotEmitted(): void
     {
         $tenant = (new Tenant())->setName('Default Tenant')->setSlug('default');
-        $context = $this->createMock(TenantContextInterface::class);
+        $context = $this->createStub(TenantContextInterface::class);
         $context->method('getTenant')->willReturn($tenant);
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
@@ -33,7 +33,7 @@ final class TenantMailerServiceTest extends TestCase
         $service = new TenantMailerService(
             $mailer,
             $context,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
         );
 
         $service->sendSimpleEmail('recipient@example.com', 'Subject', 'Content');

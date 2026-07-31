@@ -21,16 +21,16 @@ final class TenantStorageServiceTest extends TestCase
         $tenantA = (new Tenant())->setSlug('tenant-a');
         $tenantB = (new Tenant())->setSlug('tenant-b');
         $document = (new Document())->setTenant($tenantB)->setFilePath('documents/file.txt');
-        $context = $this->createMock(TenantContextInterface::class);
+        $context = $this->createStub(TenantContextInterface::class);
         $context->method('getTenant')->willReturn($tenantA);
         $storage = $this->createMock(TenantFileStorageInterface::class);
         $storage->expects(self::never())->method('exists');
 
         $service = new TenantStorageService(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $context,
             $storage,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
         );
 
         $this->expectException(TenantStorageException::class);
@@ -39,13 +39,13 @@ final class TenantStorageServiceTest extends TestCase
 
     public function testMissingTenantContextFailsClosed(): void
     {
-        $context = $this->createMock(TenantContextInterface::class);
+        $context = $this->createStub(TenantContextInterface::class);
         $context->method('getTenant')->willReturn(null);
         $service = new TenantStorageService(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $context,
-            $this->createMock(TenantFileStorageInterface::class),
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(TenantFileStorageInterface::class),
+            $this->createStub(LoggerInterface::class),
         );
 
         $this->expectException(TenantStorageException::class);
@@ -56,7 +56,7 @@ final class TenantStorageServiceTest extends TestCase
     {
         $tenant = (new Tenant())->setSlug('default');
         $document = (new Document())->setTenant($tenant)->setFilePath('documents/file.txt');
-        $context = $this->createMock(TenantContextInterface::class);
+        $context = $this->createStub(TenantContextInterface::class);
         $context->method('getTenant')->willReturn($tenant);
         $storage = $this->createMock(TenantFileStorageInterface::class);
         $storage->expects(self::once())
@@ -65,10 +65,10 @@ final class TenantStorageServiceTest extends TestCase
             ->willReturn('/app/var/uploads/tenants/default/documents/file.txt');
 
         $service = new TenantStorageService(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $context,
             $storage,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
         );
 
         self::assertSame(

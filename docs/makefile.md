@@ -32,9 +32,13 @@ make test
 make quality
 ```
 
-The current `quality` target contains only PHPUnit because PHPStan and
-PHP-CS-Fixer are not declared development dependencies in this application.
-Targets for undeclared tools must not be advertised as working checks.
+The `quality` target creates and migrates the isolated `app_test` PostgreSQL
+database, validates Doctrine mappings and schema synchronization, and runs
+PHPUnit with the same database URL used by CI. It is safe to run repeatedly.
+
+PHPStan and PHP-CS-Fixer are not declared development dependencies in this
+application. Targets for undeclared tools must not be advertised as working
+checks.
 
 ## Cleanup and data deletion
 

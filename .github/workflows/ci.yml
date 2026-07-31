@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request: ~
   workflow_dispatch: ~
 
@@ -49,21 +50,18 @@ jobs:
         name: Check Mercure reachability
         run: curl -vI --insecure --fail-with-body https://localhost/.well-known/mercure?topic=test
       -
-        name: Create test database
-        if: false # Remove this line if Doctrine ORM is installed
-        run: docker compose exec -T php bin/console -e test doctrine:database:create
+        name: Prepare test database
+        run: make test-database
       -
-        name: Run migrations
-        if: false # Remove this line if Doctrine Migrations is installed
-        run: docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
+        name: Validate Doctrine schema
+        run: make schema-validate
       -
         name: Run PHPUnit
-        if: false # Remove this line if PHPUnit is installed
-        run: docker compose exec -T php bin/phpunit
+        run: make test
       -
-        name: Doctrine Schema Validator
-        if: false # Remove this line if Doctrine ORM is installed
-        run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+        name: Preserve service logs on failure
+        if: failure()
+        run: docker compose logs --no-color --timestamps
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
