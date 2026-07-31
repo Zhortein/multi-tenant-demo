@@ -42,6 +42,14 @@
                     </ul>
                     
                     {% block navbar_extra %}{% endblock %}
+                    <ul class="navbar-nav ms-auto">
+                        {% if app.user %}
+                            <li class="nav-item"><span class="nav-link">{{ app.user.userIdentifier }}</span></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ path('app_logout') }}">Sign out</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link" href="{{ path('app_login') }}">Sign in</a></li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </nav>
