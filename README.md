@@ -1,5 +1,7 @@
 # Multi-Tenant Demo Application
 
+[![CI](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml)
+
 A comprehensive demonstration of multi-tenancy patterns using the **Zhortein Multi-Tenant Bundle** for Symfony 7.4 LTS.
 
 ## 🏢 Overview
@@ -224,21 +226,19 @@ class YourEntity
 - Query filtering
 - Data isolation
 
-### Running Tests
+### Running tests and validation
 
 ```bash
-docker compose exec php php bin/phpunit
+make quality
 ```
 
-### Code Quality
+This required check creates and migrates the isolated `app_test` PostgreSQL
+database, validates Doctrine mappings and schema synchronization, and runs the
+complete PHPUnit suite against that database. The same commands run for pull
+requests and pushes to `main` and `develop`.
 
-```bash
-# PHPStan analysis
-docker compose exec php vendor/bin/phpstan analyse
-
-# PHP CS Fixer
-docker compose exec php vendor/bin/php-cs-fixer fix
-```
+PHPStan and PHP-CS-Fixer are not currently declared by this application and are
+therefore not presented as effective local checks.
 
 ## 🌐 API Endpoints
 

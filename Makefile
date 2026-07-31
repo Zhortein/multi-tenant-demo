@@ -4,6 +4,7 @@
 DOCKER_COMPOSE = docker compose
 PHP_CONTAINER = php
 DATABASE_CONTAINER = database
+TEST_DATABASE_BASE_URL ?= postgresql://app:!ChangeMe!@database:5432/app?serverVersion=16&charset=utf8
 
 # Colors for output
 GREEN = \033[0;32m
@@ -11,7 +12,7 @@ YELLOW = \033[0;33m
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-.PHONY: help build start stop restart logs shell db-shell install setup-bundle migrate test quality clean destroy-local-data dev-setup tenant-switch tenant-list tenant-info
+.PHONY: help build start stop restart logs shell db-shell install setup-bundle migrate test-database schema-validate test quality clean destroy-local-data dev-setup tenant-switch tenant-list tenant-info
 
 help: ## Show this help message
 	@echo "$(GREEN)Multi-Tenant Demo - Available commands:$(NC)"
@@ -53,11 +54,19 @@ migrate: ## Run database migrations
 	@echo "$(GREEN)Running database migrations...$(NC)"
 	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) php bin/console doctrine:migrations:migrate --no-interaction
 
-test: ## Run tests
-	@echo "$(GREEN)Running tests...$(NC)"
-	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) php bin/phpunit
+test-database: ## Create and migrate the isolated test database
+	@echo "$(GREEN)Preparing the test database...$(NC)"
+	$(DOCKER_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php bin/console --env=test doctrine:database:create --if-not-exists
+	$(DOCKER_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php bin/console --env=test doctrine:migrations:migrate --no-interaction
 
-quality: test ## Run all currently declared quality checks
+schema-validate: ## Validate Doctrine mappings against the test database
+	$(DOCKER_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php bin/console --env=test doctrine:schema:validate
+
+test: ## Run tests against the isolated test database
+	@echo "$(GREEN)Running tests...$(NC)"
+	$(DOCKER_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php bin/phpunit
+
+quality: test-database schema-validate test ## Run all currently declared quality checks
 
 clean: ## Stop and remove project containers without deleting data
 	@echo "$(YELLOW)Stopping and removing project containers...$(NC)"
