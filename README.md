@@ -45,15 +45,21 @@ git clone <repository-url> multi-tenant-demo
 cd multi-tenant-demo
 ```
 
-2. **Start the Docker environment:**
+2. **Build and start the Docker environment:**
 ```bash
-docker compose up -d
+make build
+make start
 ```
 
-3. **Install dependencies:**
+3. **Restore the locked dependencies:**
 ```bash
-docker compose exec php composer install
+make install
 ```
+
+`make install` only runs `composer install` against the committed
+`composer.lock`; it never creates a new Symfony project or updates dependency
+versions. The container also restores the same lock file automatically when
+`vendor/` is empty.
 
 4. **Setup the database:**
 ```bash
@@ -68,6 +74,14 @@ docker compose exec php php bin/console app:create-sample-data
 6. **Access the application:**
 - Homepage: https://drenard.devlogiciel.com/
 - Admin Dashboard: https://drenard.devlogiciel.com/admin
+
+### Local cleanup
+
+`make clean` stops and removes this project's containers without deleting
+database or runtime volumes. The explicitly destructive
+`make destroy-local-data CONFIRM=destroy` command also removes this project's
+volumes and irreversibly deletes the local database. It never prunes unrelated
+Docker resources.
 
 ## 🏗️ Architecture
 
