@@ -256,6 +256,8 @@ class YourEntity
 
 ### Running tests and validation
 
+The [tenant isolation verification](docs/tenant-isolation.md) explains the independent application authorization boundary and the filter-disabled regression suite.
+
 ```bash
 make quality
 ```

@@ -1,0 +1,3 @@
+zhortein_multi_tenant:
+    database:
+        enable_filter: false

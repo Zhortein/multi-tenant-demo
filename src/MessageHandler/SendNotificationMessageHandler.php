@@ -55,9 +55,9 @@ final readonly class SendNotificationMessageHandler
                 'tenant_id' => $tenant->getId(),
             ]);
 
-            // Find the notification (will be automatically filtered by tenant)
+            // Require the message tenant explicitly; the ORM filter is only defense in depth.
             $notification = $this->entityManager->getRepository(Notification::class)
-                ->find($message->getNotificationId());
+                ->findOneBy(['id' => $message->getNotificationId(), 'tenant' => $tenant]);
 
             if (!$notification) {
                 $this->logger->warning('Notification not found', [
@@ -94,7 +94,7 @@ final readonly class SendNotificationMessageHandler
                 }
 
                 $notification = $this->entityManager->getRepository(Notification::class)
-                    ->find($message->getNotificationId());
+                    ->findOneBy(['id' => $message->getNotificationId(), 'tenant' => $tenant]);
                 
                 if ($notification) {
                     $notification->markAsFailed($e->getMessage());

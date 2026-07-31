@@ -56,13 +56,8 @@ final class EmailTestController extends AbstractController
             throw $this->createNotFoundException('Tenant not found');
         }
 
-        // Get all available tenants for testing cross-tenant functionality
-        $allTenants = $this->entityManager->getRepository(Tenant::class)
-            ->findBy(['active' => true], ['name' => 'ASC']);
-
         return $this->render('email_test/index.html.twig', [
             'current_tenant' => $tenant,
-            'all_tenants' => $allTenants,
             'email_types' => $this->getAvailableEmailTypes(),
             'notification_types' => $this->getNotificationTypes(),
         ]);
