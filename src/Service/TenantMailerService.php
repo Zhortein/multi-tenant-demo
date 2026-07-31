@@ -57,8 +57,6 @@ final readonly class TenantMailerService
             ->text($content)
             ->html($this->wrapContentWithTenantBranding($content, $tenant));
 
-        $this->addTenantHeaders($email, $tenant);
-
         $this->logger->info('Sending simple email', [
             'tenant_slug' => $tenant->getSlug(),
             'to' => $to,
@@ -102,8 +100,6 @@ final readonly class TenantMailerService
             ->subject($this->getTenantSubjectPrefix($tenant) . $subject)
             ->htmlTemplate($template)
             ->context($context);
-
-        $this->addTenantHeaders($email, $tenant);
 
         $this->logger->info('Sending templated email', [
             'tenant_slug' => $tenant->getSlug(),
@@ -230,18 +226,6 @@ final readonly class TenantMailerService
             htmlspecialchars($tenant->getName()),
             htmlspecialchars($tenant->getSlug())
         );
-    }
-
-    /**
-     * Add tenant-specific headers to the email.
-     */
-    private function addTenantHeaders(Email $email, Tenant $tenant): void
-    {
-        $email->getHeaders()
-            ->addTextHeader('X-Tenant-Slug', $tenant->getSlug())
-            ->addTextHeader('X-Tenant-Name', $tenant->getName())
-            ->addTextHeader('X-Tenant-ID', (string) $tenant->getId())
-            ->addTextHeader('X-Mailer', 'Multi-Tenant Demo App');
     }
 
     /**

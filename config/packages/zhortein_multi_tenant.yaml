@@ -10,3 +10,16 @@ zhortein_multi_tenant:
         strategy: 'shared_db'  # shared database with tenant filtering
         enable_filter: true    # enable automatic tenant filtering
         auto_tenant_id: true   # automatically add tenant_id to entities
+
+    # Tenant-aware public integrations fail closed and expose no email metadata by default.
+    mailer:
+        enabled: true
+        add_tenant_id_header: false
+        add_tenant_name_header: false
+
+    storage:
+        enabled: true
+        type: 'local'
+        local:
+            base_path: '%kernel.project_dir%/var/uploads'
+            base_url: '/tenant-files'

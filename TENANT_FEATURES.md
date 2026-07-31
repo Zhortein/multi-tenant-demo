@@ -18,7 +18,7 @@ The application now includes comprehensive tenant-aware functionality that demon
 #### Service: `TenantStorageService`
 
 **Key Features:**
-- Files are stored in tenant-specific directories (`/var/uploads/tenant_{slug}/`)
+- Files are stored in tenant-specific directories (`/var/uploads/tenants/{slug}/`)
 - Automatic file type detection and validation
 - Unique filename generation to prevent conflicts
 - File existence and content retrieval with tenant isolation
@@ -192,10 +192,10 @@ $hasTenant = $tenantContext->hasTenant();
 
 ```
 var/uploads/
-├── tenant_acme-corp/
+├── tenants/acme-corp/
 │   ├── document1_2024-12-30_12-34-56_abc123.pdf
 │   └── document2_2024-12-30_12-35-10_def456.jpg
-├── tenant_globex/
+├── tenants/globex/
 │   ├── file1_2024-12-30_13-00-00_ghi789.docx
 │   └── file2_2024-12-30_13-01-00_jkl012.png
 └── .gitkeep

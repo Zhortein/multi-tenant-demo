@@ -8,252 +8,178 @@ use App\Entity\Document;
 use App\Entity\Tenant;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Local\LocalFilesystemAdapter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
+use Zhortein\MultiTenantBundle\Storage\TenantFileStorageInterface;
+use Zhortein\MultiTenantBundle\Storage\TenantStorageException;
 
 /**
- * Service for handling tenant-aware file storage operations.
- * 
- * This service demonstrates how to implement tenant-isolated file storage,
- * ensuring that files uploaded by one tenant cannot be accessed by another
- * tenant, while providing a clean API for file operations.
+ * Demonstrates the bundle storage contract as a real downstream consumer.
  */
 final readonly class TenantStorageService
 {
-    private string $uploadsDirectory;
-
     public function __construct(
         private EntityManagerInterface $entityManager,
         private TenantContextInterface $tenantContext,
+        private TenantFileStorageInterface $storage,
         private LoggerInterface $logger,
-        string $projectDir
     ) {
-        $this->uploadsDirectory = $projectDir . '/var/uploads';
     }
 
-    /**
-     * Upload a file for the current tenant.
-     */
     public function uploadFile(
         UploadedFile $file,
         string $name,
         ?string $description = null,
-        ?User $uploadedBy = null
+        ?User $uploadedBy = null,
     ): Document {
-        $tenant = $this->tenantContext->getTenant();
-        if (!$tenant instanceof Tenant) {
-            throw new \RuntimeException('No tenant context available for file upload');
-        }
-
-        // Create tenant-specific directory
-        $tenantDir = $this->getTenantDirectory($tenant);
-        $filesystem = $this->createFilesystem($tenantDir);
-
-        // Generate unique filename
-        $originalFilename = $file->getClientOriginalName() ?? 'unknown';
+        $tenant = $this->activeTenant();
+        $originalFilename = $file->getClientOriginalName() ?: 'unknown';
         $extension = $file->getClientOriginalExtension();
         $filename = $this->generateUniqueFilename($originalFilename, $extension);
+        $relativePath = 'documents/'.$filename;
 
         try {
-            // Read file content and store it
-            $fileContent = file_get_contents($file->getPathname());
-            if ($fileContent === false) {
-                throw new \RuntimeException('Failed to read uploaded file');
-            }
+            $this->storage->uploadFile($file, $relativePath);
 
-            $filesystem->write($filename, $fileContent);
-
-            // Create document entity
-            $document = new Document();
-            $document->setName($name);
-            $document->setOriginalFilename($originalFilename);
-            $document->setFilePath($filename);
-            $document->setMimeType($file->getMimeType() ?? 'application/octet-stream');
-            $document->setFileSize($file->getSize());
-            $document->setDescription($description);
-            $document->setTenant($tenant);
-            $document->setUploadedBy($uploadedBy);
+            $document = (new Document())
+                ->setName($name)
+                ->setOriginalFilename($originalFilename)
+                ->setFilePath($relativePath)
+                ->setMimeType($file->getMimeType() ?? 'application/octet-stream')
+                ->setFileSize($file->getSize())
+                ->setDescription($description)
+                ->setTenant($tenant)
+                ->setUploadedBy($uploadedBy);
 
             $this->entityManager->persist($document);
             $this->entityManager->flush();
 
             $this->logger->info('File uploaded successfully', [
                 'document_id' => $document->getId(),
-                'filename' => $filename,
-                'tenant_slug' => $tenant->getSlug(),
+                'tenant_id' => (string) $tenant->getId(),
                 'file_size' => $file->getSize(),
             ]);
 
             return $document;
-
-        } catch (\Exception $e) {
-            $this->logger->error('Failed to upload file', [
-                'filename' => $originalFilename,
-                'tenant_slug' => $tenant->getSlug(),
-                'error' => $e->getMessage(),
+        } catch (\Throwable $exception) {
+            $this->logger->error('Tenant file upload failed', [
+                'tenant_id' => (string) $tenant->getId(),
             ]);
 
-            throw new \RuntimeException('Failed to upload file: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to upload tenant file.', 0, $exception);
         }
     }
 
-    /**
-     * Get file content for a document.
-     */
     public function getFileContent(Document $document): string
     {
-        $tenant = $document->getTenant();
-        $tenantDir = $this->getTenantDirectory($tenant);
-        $filesystem = $this->createFilesystem($tenantDir);
+        $this->assertDocumentBelongsToActiveTenant($document);
+        $content = file_get_contents($this->storage->getPath($document->getFilePath()));
 
-        try {
-            return $filesystem->read($document->getFilePath());
-        } catch (\Exception $e) {
-            $this->logger->error('Failed to read file', [
-                'document_id' => $document->getId(),
-                'file_path' => $document->getFilePath(),
-                'tenant_slug' => $tenant->getSlug(),
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new \RuntimeException('Failed to read file: ' . $e->getMessage(), 0, $e);
+        if (false === $content) {
+            throw new \RuntimeException('Failed to read tenant file.');
         }
+
+        return $content;
     }
 
-    /**
-     * Delete a file and its document record.
-     */
     public function deleteFile(Document $document): void
     {
-        $tenant = $document->getTenant();
-        $tenantDir = $this->getTenantDirectory($tenant);
-        $filesystem = $this->createFilesystem($tenantDir);
+        $this->assertDocumentBelongsToActiveTenant($document);
 
-        try {
-            // Delete physical file
-            if ($filesystem->fileExists($document->getFilePath())) {
-                $filesystem->delete($document->getFilePath());
-            }
+        $this->storage->delete($document->getFilePath());
+        $this->entityManager->remove($document);
+        $this->entityManager->flush();
 
-            // Delete document record
-            $this->entityManager->remove($document);
-            $this->entityManager->flush();
-
-            $this->logger->info('File deleted successfully', [
-                'document_id' => $document->getId(),
-                'file_path' => $document->getFilePath(),
-                'tenant_slug' => $tenant->getSlug(),
-            ]);
-
-        } catch (\Exception $e) {
-            $this->logger->error('Failed to delete file', [
-                'document_id' => $document->getId(),
-                'file_path' => $document->getFilePath(),
-                'tenant_slug' => $tenant->getSlug(),
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new \RuntimeException('Failed to delete file: ' . $e->getMessage(), 0, $e);
-        }
+        $this->logger->info('File deleted successfully', [
+            'document_id' => $document->getId(),
+            'tenant_id' => (string) $document->getTenant()->getId(),
+        ]);
     }
 
-    /**
-     * Get the full file path for a document.
-     */
     public function getFilePath(Document $document): string
     {
-        $tenant = $document->getTenant();
-        $tenantDir = $this->getTenantDirectory($tenant);
-        
-        return $tenantDir . '/' . $document->getFilePath();
+        $this->assertDocumentBelongsToActiveTenant($document);
+
+        return $this->storage->getPath($document->getFilePath());
     }
 
-    /**
-     * Check if a file exists for a document.
-     */
     public function fileExists(Document $document): bool
     {
-        $tenant = $document->getTenant();
-        $tenantDir = $this->getTenantDirectory($tenant);
-        $filesystem = $this->createFilesystem($tenantDir);
+        $this->assertDocumentBelongsToActiveTenant($document);
 
-        return $filesystem->fileExists($document->getFilePath());
+        return $this->storage->exists($document->getFilePath());
     }
 
     /**
-     * Get tenant-specific directory path.
-     */
-    private function getTenantDirectory(Tenant $tenant): string
-    {
-        return $this->uploadsDirectory . '/tenant_' . $tenant->getSlug();
-    }
-
-    /**
-     * Create filesystem instance for a directory.
-     */
-    private function createFilesystem(string $directory): Filesystem
-    {
-        // Ensure directory exists
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        $adapter = new LocalFilesystemAdapter($directory);
-        return new Filesystem($adapter);
-    }
-
-    /**
-     * Generate a unique filename to avoid conflicts.
-     */
-    private function generateUniqueFilename(string $originalFilename, string $extension): string
-    {
-        $basename = pathinfo($originalFilename, PATHINFO_FILENAME);
-        $basename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $basename);
-        $timestamp = (new \DateTimeImmutable())->format('Y-m-d_H-i-s');
-        $random = bin2hex(random_bytes(4));
-        
-        return sprintf('%s_%s_%s.%s', $basename, $timestamp, $random, $extension);
-    }
-
-    /**
-     * Get storage statistics for the current tenant.
-     * 
      * @return array{total_files: int, total_size: int, formatted_size: string}
      */
     public function getStorageStats(): array
     {
-        $tenant = $this->tenantContext->getTenant();
-        if (!$tenant instanceof Tenant) {
-            return ['total_files' => 0, 'total_size' => 0, 'formatted_size' => '0 B'];
-        }
-
+        $tenant = $this->activeTenant();
         $documents = $this->entityManager->getRepository(Document::class)
             ->findBy(['tenant' => $tenant, 'active' => true]);
 
-        $totalFiles = count($documents);
-        $totalSize = array_sum(array_map(fn(Document $doc) => $doc->getFileSize(), $documents));
+        $totalSize = array_sum(array_map(
+            static fn (Document $document): int => $document->getFileSize(),
+            $documents,
+        ));
 
         return [
-            'total_files' => $totalFiles,
+            'total_files' => count($documents),
             'total_size' => $totalSize,
             'formatted_size' => $this->formatBytes($totalSize),
         ];
     }
 
-    /**
-     * Format bytes into human-readable format.
-     */
+    private function activeTenant(): Tenant
+    {
+        $tenant = $this->tenantContext->getTenant();
+
+        if (!$tenant instanceof Tenant) {
+            throw new TenantStorageException('Tenant storage requires an active application tenant.');
+        }
+
+        return $tenant;
+    }
+
+    private function assertDocumentBelongsToActiveTenant(Document $document): void
+    {
+        $activeTenant = $this->activeTenant();
+        $documentTenant = $document->getTenant();
+        $activeId = (string) $activeTenant->getId();
+        $documentId = (string) $documentTenant->getId();
+
+        if ($activeTenant !== $documentTenant && ('0' === $activeId || $activeId !== $documentId)) {
+            throw new TenantStorageException('Cross-tenant document storage access is denied.');
+        }
+    }
+
+    private function generateUniqueFilename(string $originalFilename, string $extension): string
+    {
+        $basename = (string) preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($originalFilename, PATHINFO_FILENAME));
+        $suffix = '' !== $extension ? '.'.$extension : '';
+
+        return sprintf(
+            '%s_%s_%s%s',
+            $basename,
+            (new \DateTimeImmutable())->format('Y-m-d_H-i-s'),
+            bin2hex(random_bytes(4)),
+            $suffix,
+        );
+    }
+
     private function formatBytes(int $bytes): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        
-        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
-            $bytes /= 1024;
+        $value = (float) $bytes;
+        $unit = 0;
+
+        while ($value > 1024 && $unit < count($units) - 1) {
+            $value /= 1024;
+            ++$unit;
         }
-        
-        return round($bytes, 2) . ' ' . $units[$i];
+
+        return round($value, 2).' '.$units[$unit];
     }
 }

@@ -131,7 +131,19 @@ zhortein_multi_tenant:
     database:
         strategy: 'shared_db'
         enable_filter: true
+    mailer:
+        enabled: true
+        add_tenant_id_header: false
+        add_tenant_name_header: false
+    storage:
+        enabled: true
+        type: 'local'
+        local:
+            base_path: '%kernel.project_dir%/var/uploads'
+            base_url: '/tenant-files'
 ```
+
+Tenant storage fails closed without an active context and stores files below `tenants/{slug}/...`. The demo uses the bundle storage interface for every document operation and rejects a document whose tenant differs from the active tenant. Public tenant email headers are disabled; routing and branding remain internal. Global files require a separate explicit application service.
 
 ### Database Configuration
 
