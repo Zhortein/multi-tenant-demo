@@ -53,6 +53,9 @@ jobs:
         name: Prepare test database
         run: make test-database
       -
+        name: Load deterministic fixtures
+        run: make fixtures
+      -
         name: Validate Doctrine schema
         run: make schema-validate
       -

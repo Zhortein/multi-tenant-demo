@@ -21,7 +21,7 @@ use Zhortein\MultiTenantBundle\Attribute\TenantAware;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
-#[UniqueEntity(fields: ['email', 'tenant'], message: 'This email is already in use for this tenant.')]
+#[UniqueEntity(fields: ['email'], message: 'This email is already in use.')]
 #[TenantAware(tenantFieldName: 'tenant')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -30,7 +30,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 180)]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     #[Assert\NotBlank(message: 'Email cannot be blank.')]
     #[Assert\Email(message: 'Please enter a valid email address.')]
     private string $email = '';

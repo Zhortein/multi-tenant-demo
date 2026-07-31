@@ -85,6 +85,34 @@ database or runtime volumes. The explicitly destructive
 volumes and irreversibly deletes the local database. It never prunes unrelated
 Docker resources.
 
+## Demo authentication and accounts
+
+Authentication uses a global, unique email address and is deliberately separate
+from path-based tenant resolution. Signing in does not select or change a
+tenant. A `ROLE_USER` account may access only routes whose `tenantSlug` matches
+its assigned tenant; this explicit HTTP authorization runs in addition to the
+Doctrine tenant filter. Only fixtures explicitly assigned `ROLE_ADMIN` can use
+platform administration or inspect multiple tenant routes.
+
+Run `make fixtures` to create or update the deterministic accounts below in the
+isolated test database. The password is the non-secret demonstration value
+`demo-password` for every account:
+
+| Account | Tenant | Purpose |
+| --- | --- | --- |
+| `alice@tenant-a.example.test` | `tenant-a` | Tenant A user |
+| `bob@tenant-b.example.test` | `tenant-b` | Tenant B user |
+| `admin@example.test` | `platform` | Explicit platform administrator |
+
+The fixture command is idempotent and identifies records by stable slugs,
+e-mails, and SKUs. These credentials are for local demonstration and CI only;
+they must never be reused for a deployed environment.
+
+Authentication requires globally unique user e-mail addresses. Before applying
+migration `Version20260731170000` to an existing demo database, resolve any
+duplicate addresses created by older sample data. The unique constraint rejects
+ambiguous login identifiers and never chooses or deletes an account implicitly.
+
 ## 🏗️ Architecture
 
 ### Entity Structure
