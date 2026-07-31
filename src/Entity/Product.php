@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,7 +17,7 @@ use Zhortein\MultiTenantBundle\Attribute\TenantAware;
  * Each product belongs to a specific tenant and can only be accessed
  * within that tenant's context.
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(name: 'products')]
 #[TenantAware(tenantFieldName: 'tenant')]
 class Product
