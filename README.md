@@ -1,6 +1,6 @@
 # Multi-Tenant Demo Application
 
-A comprehensive demonstration of multi-tenancy patterns using the **Zhortein Multi-Tenant Bundle** for Symfony 7+.
+A comprehensive demonstration of multi-tenancy patterns using the **Zhortein Multi-Tenant Bundle** for Symfony 7.4 LTS.
 
 ## 🏢 Overview
 
@@ -23,7 +23,7 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 
 ### Technical Features
 - **PHP 8.3+** with strict typing
-- **Symfony 7.0+** following best practices
+- **Symfony 7.4 LTS** following best practices
 - **PostgreSQL 16** with Doctrine ORM
 - **Bootstrap 5** responsive UI
 - **Docker containerization**
@@ -32,9 +32,10 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- PHP 8.3+ (for local development)
-- PostgreSQL 16 (handled by Docker)
+- Docker Engine with Docker Compose
+- PostgreSQL 16 is provided by the project stack; PHP and Composer run inside the application container.
+
+See the compatibility and bundle update policy in docs/compatibility.md for the supported dependency baseline and reproducible bundle update procedure.
 
 ### Installation
 
@@ -126,11 +127,10 @@ System administrators can:
 # config/packages/zhortein_multi_tenant.yaml
 zhortein_multi_tenant:
     tenant_entity: App\Entity\Tenant
-    resolution:
-        strategy: path
-        parameter_name: tenantSlug
-    context:
-        auto_set: true
+    resolver: 'path'
+    database:
+        strategy: 'shared_db'
+        enable_filter: true
 ```
 
 ### Database Configuration
@@ -297,4 +297,4 @@ For questions about this demo application:
 
 ---
 
-**Built with ❤️ using Symfony 7+ and the Zhortein Multi-Tenant Bundle**
+**Built with ❤️ using Symfony 7.4 LTS and the Zhortein Multi-Tenant Bundle**

@@ -14,7 +14,7 @@ final class Version20250805070909 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create the core tenant schema and connect previously created tenant-owned tables';
     }
 
     public function up(Schema $schema): void
@@ -52,12 +52,21 @@ final class Version20250805070909 extends AbstractMigration
         $this->addSql('ALTER TABLE products ADD CONSTRAINT FK_B3BA5A5A9033212A FOREIGN KEY (tenant_id) REFERENCES tenants (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE products ADD CONSTRAINT FK_B3BA5A5AB03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE users ADD CONSTRAINT FK_1483A5E99033212A FOREIGN KEY (tenant_id) REFERENCES tenants (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE documents ADD CONSTRAINT FK_A2B07288B03A8386 FOREIGN KEY (tenant_id) REFERENCES tenants (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE documents ADD CONSTRAINT FK_A2B07288A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE notifications ADD CONSTRAINT FK_6000B0D39033212A FOREIGN KEY (tenant_id) REFERENCES tenants (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE notifications ADD CONSTRAINT FK_6000B0D3E92F8F78 FOREIGN KEY (recipient_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE notifications ADD CONSTRAINT FK_6000B0D3B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
+        $this->addSql('ALTER TABLE documents DROP CONSTRAINT FK_A2B07288B03A8386');
+        $this->addSql('ALTER TABLE documents DROP CONSTRAINT FK_A2B07288A2B28FE8');
+        $this->addSql('ALTER TABLE notifications DROP CONSTRAINT FK_6000B0D39033212A');
+        $this->addSql('ALTER TABLE notifications DROP CONSTRAINT FK_6000B0D3E92F8F78');
+        $this->addSql('ALTER TABLE notifications DROP CONSTRAINT FK_6000B0D3B03A8386');
         $this->addSql('ALTER TABLE products DROP CONSTRAINT FK_B3BA5A5A9033212A');
         $this->addSql('ALTER TABLE products DROP CONSTRAINT FK_B3BA5A5AB03A8386');
         $this->addSql('ALTER TABLE users DROP CONSTRAINT FK_1483A5E99033212A');
