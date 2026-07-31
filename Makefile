@@ -43,7 +43,7 @@ db-shell: ## Access database shell
 
 install: ## Install Symfony and dependencies
 	@echo "$(GREEN)Installing Symfony and dependencies...$(NC)"
-	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) composer create-project symfony/skeleton:"7.3.*" tmp
+	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) composer create-project symfony/skeleton:"7.4.*" tmp
 	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) cp -r tmp/* tmp/.* . 2>/dev/null || true
 	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) rm -rf tmp
 	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) composer require webapp
