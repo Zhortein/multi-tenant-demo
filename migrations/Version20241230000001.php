@@ -32,9 +32,7 @@ final class Version20241230000001 extends AbstractMigration
             created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
             updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
             tenant_id INTEGER NOT NULL,
-            uploaded_by_id INTEGER DEFAULT NULL,
-            CONSTRAINT FK_A2B07288B03A8386 FOREIGN KEY (tenant_id) REFERENCES tenants (id) NOT DEFERRABLE INITIALLY IMMEDIATE,
-            CONSTRAINT FK_A2B07288A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE
+            uploaded_by_id INTEGER DEFAULT NULL
         )');
 
         $this->addSql('CREATE INDEX IDX_A2B07288B03A8386 ON documents (tenant_id)');
@@ -60,10 +58,7 @@ final class Version20241230000001 extends AbstractMigration
             updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
             tenant_id INTEGER NOT NULL,
             recipient_id INTEGER DEFAULT NULL,
-            created_by_id INTEGER DEFAULT NULL,
-            CONSTRAINT FK_6000B0D3B03A8386 FOREIGN KEY (tenant_id) REFERENCES tenants (id) NOT DEFERRABLE INITIALLY IMMEDIATE,
-            CONSTRAINT FK_6000B0D3E92F8F78 FOREIGN KEY (recipient_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE,
-            CONSTRAINT FK_6000B0D3B03A8386_2 FOREIGN KEY (created_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE
+            created_by_id INTEGER DEFAULT NULL
         )');
 
         $this->addSql('CREATE INDEX IDX_6000B0D3B03A8386 ON notifications (tenant_id)');
