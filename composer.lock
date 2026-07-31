@@ -8176,12 +8176,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "1b76a252fb10e33409088487cfb9ec7f73483d06"
+                "reference": "07bee9a04e176d9b67f8c5b87efd28710f0d724d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/1b76a252fb10e33409088487cfb9ec7f73483d06",
-                "reference": "1b76a252fb10e33409088487cfb9ec7f73483d06",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/07bee9a04e176d9b67f8c5b87efd28710f0d724d",
+                "reference": "07bee9a04e176d9b67f8c5b87efd28710f0d724d",
                 "shasum": ""
             },
             "require": {
@@ -8281,7 +8281,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-07-31T14:11:15+00:00"
+            "time": "2026-07-31T16:08:46+00:00"
         }
     ],
     "packages-dev": [

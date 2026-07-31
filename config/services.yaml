@@ -27,8 +27,3 @@ services:
             $settingRepository: '@Zhortein\MultiTenantBundle\Repository\TenantSettingRepository'
             $cache: '@cache.app'
             $parameterBag: '@parameter_bag'
-
-    # Configure TenantStorageService with project directory
-    App\Service\TenantStorageService:
-        arguments:
-            $projectDir: '%kernel.project_dir%'
