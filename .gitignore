@@ -7,6 +7,8 @@
 /public/bundles/
 /var/
 /vendor/
+/.idea/laravel-idea.xml
+/config/reference.php
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###

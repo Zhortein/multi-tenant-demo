@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Controller\Trait\TenantNotificationTrait;
 use App\Entity\Product;
 use App\Entity\Tenant;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +28,8 @@ class ProductController extends AbstractController
     use TenantNotificationTrait;
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly TenantContextInterface $tenantContext
+        private readonly TenantContextInterface $tenantContext,
+        private readonly ProductRepository $products
     ) {
     }
 
@@ -42,10 +44,7 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException('Tenant not found.');
         }
 
-        // The multi-tenant bundle should automatically filter products by tenant
-        $products = $this->entityManager
-            ->getRepository(Product::class)
-            ->findBy(['active' => true], ['createdAt' => 'DESC']);
+        $products = $this->products->findActiveForTenant($tenant);
 
         $notificationData = $this->getNotificationDataForNavigation($tenant);
 
@@ -89,9 +88,7 @@ class ProductController extends AbstractController
             }
 
             // Check if SKU already exists for this tenant
-            $existingProduct = $this->entityManager
-                ->getRepository(Product::class)
-                ->findOneBy(['sku' => $sku, 'tenant' => $tenant]);
+            $existingProduct = $this->products->findOneBySkuForTenant($sku, $tenant);
 
             if ($existingProduct) {
                 $this->addFlash('error', 'A product with this SKU already exists.');
@@ -142,9 +139,7 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException('Tenant not found.');
         }
 
-        $product = $this->entityManager
-            ->getRepository(Product::class)
-            ->findOneBy(['id' => $id, 'tenant' => $tenant]);
+        $product = $this->products->findOneForTenant($id, $tenant);
 
         if (!$product) {
             throw $this->createNotFoundException('Product not found.');
@@ -170,9 +165,7 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException('Tenant not found.');
         }
 
-        $product = $this->entityManager
-            ->getRepository(Product::class)
-            ->findOneBy(['id' => $id, 'tenant' => $tenant]);
+        $product = $this->products->findOneForTenant($id, $tenant);
 
         if (!$product) {
             throw $this->createNotFoundException('Product not found.');
@@ -198,9 +191,7 @@ class ProductController extends AbstractController
 
             // Check if SKU already exists for this tenant (excluding current product)
             if ($sku !== $product->getSku()) {
-                $existingProduct = $this->entityManager
-                    ->getRepository(Product::class)
-                    ->findOneBy(['sku' => $sku, 'tenant' => $tenant]);
+                $existingProduct = $this->products->findOneBySkuForTenant($sku, $tenant);
 
                 if ($existingProduct && $existingProduct->getId() !== $product->getId()) {
                     $this->addFlash('error', 'A product with this SKU already exists.');
@@ -250,9 +241,7 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException('Tenant not found.');
         }
 
-        $product = $this->entityManager
-            ->getRepository(Product::class)
-            ->findOneBy(['id' => $id, 'tenant' => $tenant]);
+        $product = $this->products->findOneForTenant($id, $tenant);
 
         if (!$product) {
             throw $this->createNotFoundException('Product not found.');

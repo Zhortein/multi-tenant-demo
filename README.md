@@ -1,6 +1,8 @@
 # Multi-Tenant Demo Application
 
-A comprehensive demonstration of multi-tenancy patterns using the **Zhortein Multi-Tenant Bundle** for Symfony 7+.
+[![CI](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml)
+
+A comprehensive demonstration of multi-tenancy patterns using the **Zhortein Multi-Tenant Bundle** for Symfony 7.4 LTS.
 
 ## 🏢 Overview
 
@@ -23,7 +25,7 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 
 ### Technical Features
 - **PHP 8.3+** with strict typing
-- **Symfony 7.0+** following best practices
+- **Symfony 7.4 LTS** following best practices
 - **PostgreSQL 16** with Doctrine ORM
 - **Bootstrap 5** responsive UI
 - **Docker containerization**
@@ -32,9 +34,12 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- PHP 8.3+ (for local development)
-- PostgreSQL 16 (handled by Docker)
+- Docker Engine with Docker Compose
+- PostgreSQL 16 is provided by the project stack; PHP and Composer run inside the application container.
+
+See the compatibility and bundle update policy in docs/compatibility.md for the supported dependency baseline and reproducible bundle update procedure.
+The executable Mailer, Messenger, Storage, and Cache consumer scenarios are
+documented in [docs/bundle-integrations.md](docs/bundle-integrations.md).
 
 ### Installation
 
@@ -44,15 +49,21 @@ git clone <repository-url> multi-tenant-demo
 cd multi-tenant-demo
 ```
 
-2. **Start the Docker environment:**
+2. **Build and start the Docker environment:**
 ```bash
-docker compose up -d
+make build
+make start
 ```
 
-3. **Install dependencies:**
+3. **Restore the locked dependencies:**
 ```bash
-docker compose exec php composer install
+make install
 ```
+
+`make install` only runs `composer install` against the committed
+`composer.lock`; it never creates a new Symfony project or updates dependency
+versions. The container also restores the same lock file automatically when
+`vendor/` is empty.
 
 4. **Setup the database:**
 ```bash
@@ -67,6 +78,42 @@ docker compose exec php php bin/console app:create-sample-data
 6. **Access the application:**
 - Homepage: https://drenard.devlogiciel.com/
 - Admin Dashboard: https://drenard.devlogiciel.com/admin
+
+### Local cleanup
+
+`make clean` stops and removes this project's containers without deleting
+database or runtime volumes. The explicitly destructive
+`make destroy-local-data CONFIRM=destroy` command also removes this project's
+volumes and irreversibly deletes the local database. It never prunes unrelated
+Docker resources.
+
+## Demo authentication and accounts
+
+Authentication uses a global, unique email address and is deliberately separate
+from path-based tenant resolution. Signing in does not select or change a
+tenant. A `ROLE_USER` account may access only routes whose `tenantSlug` matches
+its assigned tenant; this explicit HTTP authorization runs in addition to the
+Doctrine tenant filter. Only fixtures explicitly assigned `ROLE_ADMIN` can use
+platform administration or inspect multiple tenant routes.
+
+Run `make fixtures` to create or update the deterministic accounts below in the
+isolated test database. The password is the non-secret demonstration value
+`demo-password` for every account:
+
+| Account | Tenant | Purpose |
+| --- | --- | --- |
+| `alice@tenant-a.example.test` | `tenant-a` | Tenant A user |
+| `bob@tenant-b.example.test` | `tenant-b` | Tenant B user |
+| `admin@example.test` | `platform` | Explicit platform administrator |
+
+The fixture command is idempotent and identifies records by stable slugs,
+e-mails, and SKUs. These credentials are for local demonstration and CI only;
+they must never be reused for a deployed environment.
+
+Authentication requires globally unique user e-mail addresses. Before applying
+migration `Version20260731170000` to an existing demo database, resolve any
+duplicate addresses created by older sample data. The unique constraint rejects
+ambiguous login identifiers and never chooses or deletes an account implicitly.
 
 ## 🏗️ Architecture
 
@@ -126,12 +173,23 @@ System administrators can:
 # config/packages/zhortein_multi_tenant.yaml
 zhortein_multi_tenant:
     tenant_entity: App\Entity\Tenant
-    resolution:
-        strategy: path
-        parameter_name: tenantSlug
-    context:
-        auto_set: true
+    resolver: 'path'
+    database:
+        strategy: 'shared_db'
+        enable_filter: true
+    mailer:
+        enabled: true
+        add_tenant_id_header: false
+        add_tenant_name_header: false
+    storage:
+        enabled: true
+        type: 'local'
+        local:
+            base_path: '%kernel.project_dir%/var/uploads'
+            base_url: '/tenant-files'
 ```
+
+Tenant storage fails closed without an active context and stores files below `tenants/{slug}/...`. The demo uses the bundle storage interface for every document operation and rejects a document whose tenant differs from the active tenant. Public tenant email headers are disabled; routing and branding remain internal. Global files require a separate explicit application service.
 
 ### Database Configuration
 
@@ -198,21 +256,21 @@ class YourEntity
 - Query filtering
 - Data isolation
 
-### Running Tests
+### Running tests and validation
+
+The [tenant isolation verification](docs/tenant-isolation.md) explains the independent application authorization boundary and the filter-disabled regression suite.
 
 ```bash
-docker compose exec php php bin/phpunit
+make quality
 ```
 
-### Code Quality
+This required check creates and migrates the isolated `app_test` PostgreSQL
+database, validates Doctrine mappings and schema synchronization, and runs the
+complete PHPUnit suite against that database. The same commands run for pull
+requests and pushes to `main` and `develop`.
 
-```bash
-# PHPStan analysis
-docker compose exec php vendor/bin/phpstan analyse
-
-# PHP CS Fixer
-docker compose exec php vendor/bin/php-cs-fixer fix
-```
+PHPStan and PHP-CS-Fixer are not currently declared by this application and are
+therefore not presented as effective local checks.
 
 ## 🌐 API Endpoints
 
@@ -297,4 +355,4 @@ For questions about this demo application:
 
 ---
 
-**Built with ❤️ using Symfony 7+ and the Zhortein Multi-Tenant Bundle**
+**Built with ❤️ using Symfony 7.4 LTS and the Zhortein Multi-Tenant Bundle**

@@ -1,37 +1,22 @@
-# Docker Build Options
+# Docker and dependency options
 
-You can customize the docker build process using these environment variables.
+This repository is a complete application, not a Symfony skeleton generator.
+Its supported PHP, Symfony, Doctrine, and bundle versions are declared in
+`composer.json`, and the exact resolved dependency set is committed in
+`composer.lock`.
 
-> [!NOTE]  
-> All Symfony-specific environment variables are used only if no `composer.json` file is found in the project directory. 
+Normal setup must not set `SYMFONY_VERSION` or `STABILITY` and must not run
+`composer create-project` or `composer update`. Build and start the containers,
+then run:
 
-## Selecting a Specific Symfony Version
+```console
+make install
+```
 
-Use the `SYMFONY_VERSION` environment variable to select a specific Symfony version.
-
-For instance, use the following command to install Symfony 6.4:
-
-On Linux:
-
-    SYMFONY_VERSION=6.4.* docker compose up --wait
-On Windows:
-
-    set SYMFONY_VERSION=6.4.* && docker compose up --wait&set SYMFONY_VERSION=
-
-## Installing Development Versions of Symfony
-
-To install a non-stable version of Symfony, use the `STABILITY` environment variable during the build.
-The value must be [a valid Composer stability option](https://getcomposer.org/doc/04-schema.md#minimum-stability).
-
-For instance, use the following command to use the development branch of Symfony:
-
-On Linux:
-
-    STABILITY=dev docker compose up --wait
-
-On Windows:
-    
-    set STABILITY=dev && docker compose up --wait&set STABILITY=
+This restores the exact lock file without selecting newer package versions.
+Intentional dependency upgrades follow the separately documented procedure in
+[`compatibility.md`](compatibility.md) and must include review of the resulting
+`composer.json` and `composer.lock` changes.
 
 ## Using custom HTTP ports
 

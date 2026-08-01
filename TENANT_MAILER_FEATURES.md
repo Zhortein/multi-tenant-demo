@@ -224,9 +224,7 @@ public function sendCustomEmail(TenantMailerService $mailer): void
 
 ```php
 // Automatic headers added to all emails
-X-Tenant-Slug: acme-corp
-X-Tenant-Name: Acme Corporation
-X-Tenant-ID: 1
+Tenant metadata headers are not emitted by default. Applications must opt in explicitly through the bundle configuration when a trusted receiver requires a specific header.
 X-Mailer: Multi-Tenant Demo App
 ```
 

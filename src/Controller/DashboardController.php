@@ -8,6 +8,7 @@ use App\Controller\Trait\TenantNotificationTrait;
 use App\Entity\Document;
 use App\Entity\Notification;
 use App\Entity\Tenant;
+use App\Entity\User;
 use App\Service\TenantStorageService;
 use App\Service\TenantNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,9 +41,17 @@ class DashboardController extends AbstractController
     #[Route('/', name: 'app_homepage')]
     public function homepage(): Response
     {
-        $tenants = $this->entityManager
-            ->getRepository(Tenant::class)
-            ->findBy(['active' => true], ['name' => 'ASC']);
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            $tenants = [];
+        } elseif ($this->isGranted('ROLE_ADMIN')) {
+            $tenants = $this->entityManager
+                ->getRepository(Tenant::class)
+                ->findBy(['active' => true], ['name' => 'ASC']);
+        } else {
+            $tenant = $user->getTenant();
+            $tenants = $tenant !== null && $tenant->isActive() ? [$tenant] : [];
+        }
 
         return $this->render('dashboard/homepage.html.twig', [
             'tenants' => $tenants,

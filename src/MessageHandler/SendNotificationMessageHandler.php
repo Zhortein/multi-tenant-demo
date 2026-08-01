@@ -14,11 +14,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 
 /**
- * Handler for processing notification messages asynchronously.
- * 
- * This handler demonstrates how to process messages in a multi-tenant
- * context, ensuring that the correct tenant context is set and
- * data isolation is maintained during message processing.
+ * Processes a notification only inside the context restored from TenantStamp.
  */
 #[AsMessageHandler]
 final readonly class SendNotificationMessageHandler
@@ -27,89 +23,46 @@ final readonly class SendNotificationMessageHandler
         private EntityManagerInterface $entityManager,
         private TenantContextInterface $tenantContext,
         private TenantNotificationService $notificationService,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(SendNotificationMessage $message): void
     {
+        $tenant = $this->tenantContext->getTenant();
+        if (!$tenant instanceof Tenant) {
+            $this->logger->error('Notification processing requires a restored tenant context.', [
+                'notification_id' => $message->getNotificationId(),
+            ]);
+
+            throw new \RuntimeException('Notification processing requires a restored tenant context.');
+        }
+
+        $notification = $this->entityManager->getRepository(Notification::class)
+            ->findOneBy(['id' => $message->getNotificationId(), 'tenant' => $tenant]);
+
+        if (!$notification instanceof Notification) {
+            $this->logger->warning('Notification not found in the restored tenant context.', [
+                'notification_id' => $message->getNotificationId(),
+                'tenant_slug' => $tenant->getSlug(),
+            ]);
+
+            throw new \RuntimeException('Notification does not belong to the restored tenant context.');
+        }
+
         try {
-            // Find and set the tenant context for this message processing
-            $tenant = $this->entityManager->getRepository(Tenant::class)
-                ->findOneBy(['slug' => $message->getTenantSlug(), 'active' => true]);
-
-            if (!$tenant) {
-                $this->logger->error('Tenant not found for message processing', [
-                    'tenant_slug' => $message->getTenantSlug(),
-                    'notification_id' => $message->getNotificationId(),
-                ]);
-                return;
-            }
-
-            // Set the tenant context
-            $this->tenantContext->setTenant($tenant);
-
-            $this->logger->info('Processing notification message', [
-                'notification_id' => $message->getNotificationId(),
-                'tenant_slug' => $message->getTenantSlug(),
-                'tenant_id' => $tenant->getId(),
-            ]);
-
-            // Find the notification (will be automatically filtered by tenant)
-            $notification = $this->entityManager->getRepository(Notification::class)
-                ->find($message->getNotificationId());
-
-            if (!$notification) {
-                $this->logger->warning('Notification not found', [
-                    'notification_id' => $message->getNotificationId(),
-                    'tenant_slug' => $message->getTenantSlug(),
-                ]);
-                return;
-            }
-
-            // Process the notification
             $this->notificationService->processNotification($notification);
+        } catch (\Throwable $exception) {
+            $notification->markAsFailed($exception->getMessage());
+            $this->entityManager->flush();
 
-            $this->logger->info('Notification processed successfully', [
+            $this->logger->error('Notification processing failed.', [
                 'notification_id' => $message->getNotificationId(),
-                'tenant_slug' => $message->getTenantSlug(),
+                'tenant_slug' => $tenant->getSlug(),
+                'error' => $exception->getMessage(),
             ]);
 
-        } catch (\Exception $e) {
-            $this->logger->error('Failed to process notification message', [
-                'notification_id' => $message->getNotificationId(),
-                'tenant_slug' => $message->getTenantSlug(),
-                'error' => $e->getMessage(),
-            ]);
-
-            // Try to mark notification as failed if it exists
-            try {
-                // Ensure tenant context is set for error handling
-                if (!$this->tenantContext->hasTenant()) {
-                    $tenant = $this->entityManager->getRepository(Tenant::class)
-                        ->findOneBy(['slug' => $message->getTenantSlug(), 'active' => true]);
-                    if ($tenant) {
-                        $this->tenantContext->setTenant($tenant);
-                    }
-                }
-
-                $notification = $this->entityManager->getRepository(Notification::class)
-                    ->find($message->getNotificationId());
-                
-                if ($notification) {
-                    $notification->markAsFailed($e->getMessage());
-                    $this->entityManager->flush();
-                }
-            } catch (\Exception $markFailedException) {
-                $this->logger->error('Failed to mark notification as failed', [
-                    'notification_id' => $message->getNotificationId(),
-                    'tenant_slug' => $message->getTenantSlug(),
-                    'original_error' => $e->getMessage(),
-                    'mark_failed_error' => $markFailedException->getMessage(),
-                ]);
-            }
-
-            throw $e;
+            throw $exception;
         }
     }
 }
