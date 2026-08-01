@@ -10,6 +10,8 @@ The bundle separately validates Symfony 8.1 on PHP 8.5 with both shared-database
 
 The demo requires the exact `1.0.0-rc.1` bundle release candidate and composer.lock records the tagged source commit. The committed lock file is the reproducibility boundary: ordinary installations must run composer install and must not resolve a development branch or a future stable version implicitly.
 
+Dependabot must ignore `zhortein/multi-tenant-bundle` throughout this release-candidate validation period. Bundle upgrades are deliberate compatibility changes: Dependabot must not replace the exact RC constraint with `dev-develop`, another pre-release, or any other version. Remove the ignore rule only in the same reviewed change that adopts an approved bundle release according to this policy.
+
 After an upstream bundle pull request is merged:
 
 1. Review the bundle compatibility and migration notes.
@@ -25,3 +27,15 @@ When a compatible stable bundle tag is published, review its migration notes bef
 ## Upgrade validation
 
 Every baseline upgrade must verify Composer validation and audit, dependency restoration from composer.lock, Symfony container compilation, Doctrine mappings and schema, migrations, PHPUnit, and HTTP smoke paths. Tenant-sensitive upgrades additionally require negative cross-tenant tests; successful installation alone is not evidence of isolation.
+
+## Dependabot branch synchronization
+
+Dependabot version updates target `develop` and must normally be merged there only after the complete required CI succeeds. Automatic merging is not enabled.
+
+If a Dependabot pull request is exceptionally merged directly into `main`, synchronize it back to `develop` immediately:
+
+1. Confirm that the Dependabot pull request and its complete required CI succeeded on `main`.
+2. Create a dedicated synchronization branch from the latest `develop`.
+3. Merge the latest `main` into that branch without rewriting either shared branch.
+4. Resolve conflicts by preserving the reviewed dependency constraints and lock file from the Dependabot change, then run the complete required CI again.
+5. Open a pull request from the synchronization branch to `develop`, merge it only when all required checks are green, and safely delete the merged synchronization branch.
