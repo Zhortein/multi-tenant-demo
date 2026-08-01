@@ -7,10 +7,12 @@ namespace App\Service;
 use App\Entity\Tenant;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
+use Zhortein\MultiTenantBundle\Mailer\TenantAwareMailer;
 
 /**
  * Tenant-aware mailer service for sending emails with tenant-specific branding and context.
@@ -22,6 +24,7 @@ use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 final readonly class TenantMailerService
 {
     public function __construct(
+        #[Autowire(service: TenantAwareMailer::class)]
         private MailerInterface $mailer,
         private TenantContextInterface $tenantContext,
         private LoggerInterface $logger

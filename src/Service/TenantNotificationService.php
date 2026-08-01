@@ -88,8 +88,7 @@ final readonly class TenantNotificationService
     public function sendNotificationAsync(Notification $notification): void
     {
         $message = new SendNotificationMessage(
-            $notification->getId(),
-            $notification->getTenant()->getSlug()
+            $notification->getId()
         );
 
         $this->messageBus->dispatch($message);
