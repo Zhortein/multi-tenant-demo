@@ -38,6 +38,8 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 - PostgreSQL 16 is provided by the project stack; PHP and Composer run inside the application container.
 
 See the compatibility and bundle update policy in docs/compatibility.md for the supported dependency baseline and reproducible bundle update procedure.
+The executable Mailer, Messenger, Storage, and Cache consumer scenarios are
+documented in [docs/bundle-integrations.md](docs/bundle-integrations.md).
 
 ### Installation
 
