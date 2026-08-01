@@ -50,7 +50,7 @@
         "symfony/yaml": "7.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "zhortein/multi-tenant-bundle": "dev-develop"
+        "zhortein/multi-tenant-bundle": "1.0.0-rc.1"
     },
     "config": {
         "allow-plugins": {

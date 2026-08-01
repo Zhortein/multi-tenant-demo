@@ -6,9 +6,9 @@ The demo currently targets PHP 8.3 or later, Symfony 7.4 LTS, DoctrineBundle 2.1
 
 The bundle separately validates Symfony 8.1 on PHP 8.5 with both shared-database and multi-database consumer configurations. The full demo remains on Symfony 7.4 because its current stable DoctrineBundle, MonologBundle, and FrankenPHP runtime dependencies do not yet permit Symfony 8.1. This limitation is outside the bundle and must not be hidden by removing documented demo features.
 
-## Development branch validation
+## Release-candidate validation
 
-Before a stable bundle release exists, composer.json uses dev-develop and composer.lock records the exact source commit. The committed lock file is the reproducibility boundary: ordinary installations must run composer install and must not resolve a newer develop commit implicitly.
+The demo requires the exact `1.0.0-rc.1` bundle release candidate and composer.lock records the tagged source commit. The committed lock file is the reproducibility boundary: ordinary installations must run composer install and must not resolve a development branch or a future stable version implicitly.
 
 After an upstream bundle pull request is merged:
 
@@ -20,7 +20,7 @@ After an upstream bundle pull request is merged:
 
 ## Stable releases
 
-Once a compatible stable bundle tag is available, replace dev-develop with the narrowest supported stable constraint, refresh composer.lock through the same review process, and document the selected version. Do not remove the lock file: this application must remain installable from an immutable dependency graph.
+When a compatible stable bundle tag is published, review its migration notes before replacing the exact RC constraint with the narrowest supported stable constraint, refresh composer.lock through the same review process, and document the selected version. Do not remove the lock file: this application must remain installable from an immutable dependency graph.
 
 ## Upgrade validation
 

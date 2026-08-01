@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b60aab3227a45017208b749a5f2930ea",
+    "content-hash": "0ff27c4a2ddc62ec9656b3a6e0632473",
     "packages": [
         {
             "name": "composer/semver",
@@ -8172,16 +8172,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "dev-develop",
+            "version": "v1.0.0-rc.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "b60fc029f08cf9b13cb933479365b4f3010f5d93"
+                "reference": "67916df072b7531ff836415b65d2388df636d023"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/b60fc029f08cf9b13cb933479365b4f3010f5d93",
-                "reference": "b60fc029f08cf9b13cb933479365b4f3010f5d93",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/67916df072b7531ff836415b65d2388df636d023",
+                "reference": "67916df072b7531ff836415b65d2388df636d023",
                 "shasum": ""
             },
             "require": {
@@ -8228,7 +8228,10 @@
             },
             "suggest": {
                 "monolog/monolog": "Needed for the optional tenant-aware Monolog processor",
+                "phpunit/phpunit": "Needed by consumers extending the optional public test-kit base classes",
                 "psr/simple-cache": "Needed for PSR-16 simple cache tenant-aware decorators",
+                "symfony/browser-kit": "Needed by consumers extending the optional TenantWebTestCase",
+                "symfony/dom-crawler": "Needed by consumers making crawler-based requests with TenantWebTestCase",
                 "symfony/mailer": "Needed for dynamic tenant-aware mail sending",
                 "symfony/twig-bundle": "Needed for templated tenant-aware emails"
             },
@@ -8281,7 +8284,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-08-01T05:01:15+00:00"
+            "time": "2026-08-01T06:42:47+00:00"
         }
     ],
     "packages-dev": [
@@ -10515,7 +10518,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "zhortein/multi-tenant-bundle": 20
+        "zhortein/multi-tenant-bundle": 5
     },
     "prefer-stable": true,
     "prefer-lowest": false,
