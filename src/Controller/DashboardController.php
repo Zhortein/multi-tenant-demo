@@ -9,6 +9,7 @@ use App\Entity\Document;
 use App\Entity\Notification;
 use App\Entity\Tenant;
 use App\Entity\User;
+use App\Entity\Membership;
 use App\Service\TenantStorageService;
 use App\Service\TenantNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
+use Zhortein\MultiTenantBundle\Doctrine\GlobalDoctrineScopeInterface;
 
 /**
  * Main dashboard controller for the multi-tenant demo application.
@@ -31,7 +33,8 @@ class DashboardController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly TenantContextInterface $tenantContext,
         private readonly TenantStorageService $storageService,
-        private readonly TenantNotificationService $notificationService
+        private readonly TenantNotificationService $notificationService,
+        private readonly GlobalDoctrineScopeInterface $globalDoctrineScope,
     ) {
     }
 
@@ -49,8 +52,17 @@ class DashboardController extends AbstractController
                 ->getRepository(Tenant::class)
                 ->findBy(['active' => true], ['name' => 'ASC']);
         } else {
-            $tenant = $user->getTenant();
-            $tenants = $tenant !== null && $tenant->isActive() ? [$tenant] : [];
+            $tenants = $this->globalDoctrineScope->run(function () use ($user): array {
+                $memberships = $this->entityManager->getRepository(Membership::class)->findBy([
+                    'user' => $user,
+                    'active' => true,
+                ]);
+
+                return array_values(array_filter(array_map(
+                    static fn (Membership $membership): Tenant => $membership->getTenant(),
+                    $memberships,
+                ), static fn (Tenant $tenant): bool => $tenant->isActive()));
+            });
         }
 
         return $this->render('dashboard/homepage.html.twig', [
@@ -104,8 +116,8 @@ class DashboardController extends AbstractController
         $stats = [
             'total_products' => $tenant->getProducts()->count(),
             'active_products' => $tenant->getProducts()->filter(fn($p) => $p->isActive())->count(),
-            'total_users' => $tenant->getUsers()->count(),
-            'active_users' => $tenant->getUsers()->filter(fn($u) => $u->isActive())->count(),
+            'total_users' => $tenant->getMemberships()->count(),
+            'active_users' => $tenant->getMemberships()->filter(fn($membership) => $membership->isActive())->count(),
         ];
 
         // Get storage statistics

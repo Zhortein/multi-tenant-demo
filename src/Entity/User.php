@@ -11,18 +11,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Zhortein\MultiTenantBundle\Attribute\TenantAware;
 
 /**
- * User entity with multi-tenant support.
- * 
- * This entity is tenant-aware, meaning each user belongs to a specific tenant
- * and can only access data within their tenant's scope.
+ * Global authenticatable identity. Tenant access is represented by Membership.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
 #[UniqueEntity(fields: ['email'], message: 'This email is already in use.')]
-#[TenantAware(tenantFieldName: 'tenant')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -73,10 +68,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\ManyToOne(targetEntity: Tenant::class, inversedBy: 'users')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'User must belong to a tenant.')]
-    private ?Tenant $tenant = null;
+    /** @var Collection<int, Membership> */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Membership::class, cascade: ['persist'], orphanRemoval: true)]
+    private Collection $memberships;
 
     /**
      * @var Collection<int, Product>
@@ -88,6 +82,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->createdProducts = new ArrayCollection();
+        $this->memberships = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -221,17 +216,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->updatedAt;
     }
 
-    public function getTenant(): ?Tenant
+    /** @return Collection<int, Membership> */
+    public function getMemberships(): Collection
     {
-        return $this->tenant;
+        return $this->memberships;
     }
 
-    public function setTenant(?Tenant $tenant): static
+    public function addMembership(Membership $membership): static
     {
-        $this->tenant = $tenant;
-        $this->updatedAt = new \DateTimeImmutable();
+        if (!$this->memberships->contains($membership)) {
+            $this->memberships->add($membership);
+            $membership->setUser($this);
+        }
 
         return $this;
+    }
+
+    public function hasTenantSlug(string $slug): bool
+    {
+        foreach ($this->memberships as $membership) {
+            if ($membership->isActive() && $membership->getTenant()->getSlug() === $slug) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

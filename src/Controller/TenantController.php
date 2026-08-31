@@ -163,7 +163,7 @@ class TenantController extends AbstractController
             $tenantName = $tenant->getName();
             
             // Check if tenant has users or products
-            if ($tenant->getUsers()->count() > 0 || $tenant->getProducts()->count() > 0) {
+            if ($tenant->getMemberships()->count() > 0 || $tenant->getProducts()->count() > 0) {
                 $this->addFlash('error', 'Cannot delete tenant with existing users or products.');
                 return $this->redirectToRoute('admin_tenant_show', ['id' => $tenant->getId()]);
             }

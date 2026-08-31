@@ -7,7 +7,9 @@ namespace App\Command;
 use App\Entity\Product;
 use App\Entity\Tenant;
 use App\Entity\User;
+use App\Entity\Membership;
 use Doctrine\ORM\EntityManagerInterface;
+use Zhortein\MultiTenantBundle\Doctrine\GlobalDoctrineScopeInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,11 +25,17 @@ final class CreateSampleDataCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly GlobalDoctrineScopeInterface $globalDoctrineScope,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        return $this->globalDoctrineScope->run(fn (): int => $this->createSampleData($input, $output));
+    }
+
+    private function createSampleData(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $definitions = [
@@ -46,10 +54,16 @@ final class CreateSampleDataCommand extends Command
                 ->setFirstName($definition['first'])
                 ->setLastName($definition['last'])
                 ->setRoles($definition['roles'])
-                ->setTenant($tenant)
                 ->setActive(true);
             $user->setPassword($this->passwordHasher->hashPassword($user, self::DEMO_PASSWORD));
             $this->entityManager->persist($user);
+
+            $membership = $this->entityManager->getRepository(Membership::class)->findOneBy([
+                'user' => $user,
+                'tenant' => $tenant,
+            ]) ?? new Membership();
+            $membership->setUser($user)->setTenant($tenant)->setRoles($definition['roles'])->setActive(true);
+            $this->entityManager->persist($membership);
 
             if ($definition['sku'] !== null) {
                 $product = $this->entityManager->getRepository(Product::class)->findOneBy([

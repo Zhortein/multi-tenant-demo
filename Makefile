@@ -4,7 +4,7 @@
 DOCKER_COMPOSE = docker compose
 PHP_CONTAINER = php
 DATABASE_CONTAINER = database
-TEST_DATABASE_BASE_URL ?= postgresql://app:!ChangeMe!@database:5432/app?serverVersion=16&charset=utf8
+TEST_DATABASE_BASE_URL ?= postgresql://app:!ChangeMe!@database:5432/app?serverVersion=18&charset=utf8
 
 # Colors for output
 GREEN = \033[0;32m

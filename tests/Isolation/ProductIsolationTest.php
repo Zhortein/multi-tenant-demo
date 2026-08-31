@@ -15,6 +15,9 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
+use Zhortein\MultiTenantBundle\Doctrine\GlobalDoctrineScopeInterface;
+use Zhortein\MultiTenantBundle\Exception\MissingTenantContextException;
+use Zhortein\MultiTenantBundle\Exception\TenantMismatchException;
 
 final class ProductIsolationTest extends WebTestCase
 {
@@ -33,15 +36,16 @@ final class ProductIsolationTest extends WebTestCase
 
     public function testTenantScopedRepositoryListAndDirectAccessRemainIsolatedWithoutDoctrineFilter(): void
     {
-        self::assertFalse($this->entityManager->getFilters()->isEnabled('tenant_filter'));
+        self::assertTrue($this->entityManager->getFilters()->isEnabled('tenant_filter'));
 
         $tenantA = $this->tenant('tenant-a');
         $tenantAProduct = $this->product('TENANT-A-PRODUCT');
         $tenantBProduct = $this->product('TENANT-B-PRODUCT');
+        static::getContainer()->get(TenantContextInterface::class)->setTenant($tenantA);
 
         $tenantAProducts = $this->products->findActiveForTenant($tenantA);
-        self::assertContains($tenantAProduct, $tenantAProducts);
-        self::assertNotContains($tenantBProduct, $tenantAProducts);
+        self::assertContains($tenantAProduct->getId(), array_map(static fn (Product $product): ?int => $product->getId(), $tenantAProducts));
+        self::assertNotContains($tenantBProduct->getId(), array_map(static fn (Product $product): ?int => $product->getId(), $tenantAProducts));
         foreach ($tenantAProducts as $product) {
             self::assertSame('tenant-a', $product->getTenant()?->getSlug());
         }
@@ -58,6 +62,20 @@ final class ProductIsolationTest extends WebTestCase
 
         $this->client->request('GET', '/tenant-a/products/'.$tenantBProduct->getId());
         self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testTenantAwareOrmReadWithoutContextFailsClosedWhenFilterIsEnabled(): void
+    {
+        $context = static::getContainer()->get(TenantContextInterface::class);
+        $context->clear();
+        $filters = $this->entityManager->getFilters();
+        if ($filters->isEnabled('tenant_filter')) {
+            $filters->disable('tenant_filter');
+        }
+        $filters->enable('tenant_filter');
+
+        $this->expectException(MissingTenantContextException::class);
+        $this->entityManager->getRepository(Product::class)->findAll();
     }
 
     public function testCrossTenantEditUpdateAndDeleteAreRejected(): void
@@ -80,7 +98,7 @@ final class ProductIsolationTest extends WebTestCase
         $this->client->request('POST', '/tenant-a/products/'.$id.'/delete', ['_token' => 'irrelevant']);
         self::assertResponseStatusCodeSame(404);
 
-        $this->entityManager->clear();
+        $this->em()->clear();
         self::assertSame('Tenant B Product', $this->product('TENANT-B-PRODUCT')->getName());
     }
 
@@ -101,7 +119,7 @@ final class ProductIsolationTest extends WebTestCase
         ]);
         self::assertResponseRedirects('/tenant-a/products/'.$product->getId());
 
-        $this->entityManager->clear();
+        $this->em()->clear();
         $updated = $this->product('TENANT-A-DELETE');
         self::assertSame('Updated Tenant A Product', $updated->getName());
 
@@ -110,7 +128,7 @@ final class ProductIsolationTest extends WebTestCase
         $this->client->submit($crawler->selectButton('Delete Product')->form());
         self::assertResponseRedirects('/tenant-a/products');
 
-        $this->entityManager->clear();
+        $this->em()->clear();
         self::assertNull($this->products->findOneBySkuForTenant('TENANT-A-DELETE', $this->tenant('tenant-a')));
     }
 
@@ -131,9 +149,35 @@ final class ProductIsolationTest extends WebTestCase
         ]);
         self::assertResponseRedirects('/tenant-a/products');
 
-        $this->entityManager->clear();
+        $this->em()->clear();
         $created = $this->product('TENANT-A-CREATED');
         self::assertSame($tenantA->getSlug(), $created->getTenant()?->getSlug());
+    }
+
+    public function testDirectTenantAwareCreationWithoutContextIsRejected(): void
+    {
+        static::getContainer()->get(TenantContextInterface::class)->clear();
+        $product = (new Product())
+            ->setName('No context')
+            ->setSku('NO-CONTEXT')
+            ->setPrice('1.00')
+            ->setStockQuantity(1);
+        $this->expectException(MissingTenantContextException::class);
+        $this->entityManager->persist($product);
+    }
+
+    public function testDirectCreationForAnotherTenantIsRejected(): void
+    {
+        $context = static::getContainer()->get(TenantContextInterface::class);
+        $context->setTenant($this->tenant('tenant-a'));
+        $product = (new Product())
+            ->setTenant($this->tenant('tenant-b'))
+            ->setName('Cross tenant')
+            ->setSku('CROSS-TENANT')
+            ->setPrice('1.00')
+            ->setStockQuantity(1);
+        $this->expectException(TenantMismatchException::class);
+        $this->entityManager->persist($product);
     }
 
     public function testEmailScreenDoesNotEnumerateOtherTenants(): void
@@ -162,6 +206,7 @@ final class ProductIsolationTest extends WebTestCase
     private function freshProduct(string $sku): Product
     {
         $this->removeProduct($sku);
+        static::getContainer()->get(TenantContextInterface::class)->setTenant($this->tenant('tenant-a'));
         $product = (new Product())
             ->setTenant($this->tenant('tenant-a'))
             ->setName('Disposable Tenant A Product')
@@ -176,10 +221,19 @@ final class ProductIsolationTest extends WebTestCase
 
     private function removeProduct(string $sku): void
     {
-        $existing = $this->entityManager->getRepository(Product::class)->findOneBy(['sku' => $sku]);
+        $existing = static::getContainer()->get(GlobalDoctrineScopeInterface::class)->run(
+            fn (): ?Product => $this->em()->getRepository(Product::class)->findOneBy(['sku' => $sku]),
+        );
         if ($existing instanceof Product) {
-            $this->entityManager->remove($existing);
-            $this->entityManager->flush();
+            $tenant = $existing->getTenant();
+            self::assertInstanceOf(Tenant::class, $tenant);
+            $productId = $existing->getId();
+            static::getContainer()->get(TenantContextInterface::class)->setTenant($tenant);
+            $managed = $this->em()->find(Product::class, $productId);
+            if ($managed instanceof Product) {
+                $this->em()->remove($managed);
+                $this->em()->flush();
+            }
         }
     }
 
@@ -201,7 +255,9 @@ final class ProductIsolationTest extends WebTestCase
 
     private function product(string $sku): Product
     {
-        $product = $this->entityManager->getRepository(Product::class)->findOneBy(['sku' => $sku]);
+        $product = static::getContainer()->get(GlobalDoctrineScopeInterface::class)->run(
+            fn (): ?Product => $this->em()->getRepository(Product::class)->findOneBy(['sku' => $sku]),
+        );
         self::assertInstanceOf(Product::class, $product);
 
         return $product;
@@ -209,9 +265,14 @@ final class ProductIsolationTest extends WebTestCase
 
     private function tenant(string $slug): Tenant
     {
-        $tenant = $this->entityManager->getRepository(Tenant::class)->findOneBy(['slug' => $slug]);
+        $tenant = $this->em()->getRepository(Tenant::class)->findOneBy(['slug' => $slug]);
         self::assertInstanceOf(Tenant::class, $tenant);
 
         return $tenant;
+    }
+
+    private function em(): EntityManagerInterface
+    {
+        return static::getContainer()->get(EntityManagerInterface::class);
     }
 }

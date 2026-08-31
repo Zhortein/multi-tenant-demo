@@ -29,7 +29,7 @@ security:
         - { path: ^/logout$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/admin(?:/|$), roles: ROLE_ADMIN }
-        - { path: ^/(?P<tenantSlug>[a-z0-9-]+)(?:/|$), allow_if: "is_granted('ROLE_USER') and (is_granted('ROLE_ADMIN') or request.attributes.get('tenantSlug') == user.getTenant().getSlug())" }
+        - { path: ^/(?P<tenantSlug>[a-z0-9-]+)(?:/|$), allow_if: "is_granted('ROLE_USER') and is_granted('TENANT_ACCESS', request.attributes.get('tenantSlug'))" }
         - { path: ^/, roles: ROLE_USER }
 when@test:
     security:
