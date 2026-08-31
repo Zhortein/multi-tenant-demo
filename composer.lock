@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd94e5ba826bc9b49311dc6a33114eb6",
+    "content-hash": "93216d878c523665c5e556f20276b50f",
     "packages": [
         {
             "name": "composer/semver",
@@ -8179,22 +8179,22 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.2",
+            "version": "v1.0.0-rc.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "94dca547e951d32750968c3daa0a408906a61ba3"
+                "reference": "23d6f3d0a994a38674b3f838990180cef317258b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/94dca547e951d32750968c3daa0a408906a61ba3",
-                "reference": "94dca547e951d32750968c3daa0a408906a61ba3",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/23d6f3d0a994a38674b3f838990180cef317258b",
+                "reference": "23d6f3d0a994a38674b3f838990180cef317258b",
                 "shasum": ""
             },
             "require": {
                 "doctrine/dbal": "^3.8 || ^4.4",
                 "doctrine/doctrine-bundle": "^2.19 || ^3.3",
-                "doctrine/doctrine-migrations-bundle": "^3.0",
+                "doctrine/doctrine-migrations-bundle": "^3.4 || ^4.0",
                 "doctrine/migrations": "^3.0",
                 "doctrine/orm": "^3.5",
                 "doctrine/persistence": "^3.3 || ^4.0",
@@ -8291,7 +8291,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-08-31T08:56:22+00:00"
+            "time": "2026-08-31T13:21:51+00:00"
         }
     ],
     "packages-dev": [
