@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml)
 
-A comprehensive demonstration of multi-tenancy patterns using the **Zhortein Multi-Tenant Bundle** for Symfony 7.4 LTS.
+A fail-closed reference consumer of the **Zhortein Multi-Tenant Bundle**, validated with PHP 8.5.9 and PostgreSQL 18.
 
 ## 🏢 Overview
 
@@ -24,9 +24,9 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 - **Tenant Dashboards**: Individual tenant analytics
 
 ### Technical Features
-- **PHP 8.3+** with strict typing
+- **PHP 8.5.9** reference runtime with strict typing
 - **Symfony 7.4 LTS** following best practices
-- **PostgreSQL 16** with Doctrine ORM
+- **PostgreSQL 18** with Doctrine ORM
 - **Bootstrap 5** responsive UI
 - **Docker containerization**
 - **PHPStan Level Max** compliance
@@ -35,7 +35,7 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 
 ### Prerequisites
 - Docker Engine with Docker Compose
-- PostgreSQL 16 is provided by the project stack; PHP and Composer run inside the application container.
+- PostgreSQL 18 is provided by the project stack; PHP and Composer run inside the application container.
 
 See the compatibility and bundle update policy in docs/compatibility.md for the supported dependency baseline and reproducible bundle update procedure.
 The executable Mailer, Messenger, Storage, and Cache consumer scenarios are
@@ -356,3 +356,8 @@ For questions about this demo application:
 ---
 
 **Built with ❤️ using Symfony 7.4 LTS and the Zhortein Multi-Tenant Bundle**
+Tenant-aware ORM reads and writes require an active tenant and fail before an unscoped operation can proceed. Application repositories keep explicit tenant predicates; the Doctrine filter is an additional ORM-read boundary rather than the sole isolation mechanism. Authorized fixture and administration work uses `GlobalDoctrineScopeInterface::run()` and still requires application authorization.
+
+Every application message implements exactly one bundle marker interface. `SendNotificationMessage` is tenant-aware, while `GlobalHealthCheckMessage` demonstrates the explicit global contract. Missing, unknown, or contradictory tenant metadata is rejected before handlers run.
+
+For local bundle development, validate from an isolated copy of this repository with a Composer `path` repository pointing at the bundle checkout. Do not add that machine-specific repository to this published project. The committed dependency and lock file use the published RC2 package from Packagist.

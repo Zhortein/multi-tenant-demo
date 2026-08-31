@@ -6,7 +6,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Zhortein\MultiTenantBundle\Attribute\TenantAware;
+use Zhortein\MultiTenantBundle\Attribute\AsTenantAware;
 
 /**
  * Notification entity for testing tenant-aware messaging and email functionality.
@@ -17,7 +17,7 @@ use Zhortein\MultiTenantBundle\Attribute\TenantAware;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'notifications')]
-#[TenantAware(tenantFieldName: 'tenant')]
+#[AsTenantAware(tenantField: 'tenant')]
 class Notification
 {
     public const TYPE_INFO = 'info';

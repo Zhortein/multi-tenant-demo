@@ -69,10 +69,10 @@ class Tenant implements TenantInterface
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @var Collection<int, User>
+     * @var Collection<int, Membership>
      */
-    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: User::class)]
-    private Collection $users;
+    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: Membership::class, orphanRemoval: true)]
+    private Collection $memberships;
 
     /**
      * @var Collection<int, Product>
@@ -95,7 +95,7 @@ class Tenant implements TenantInterface
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->users = new ArrayCollection();
+        $this->memberships = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->documents = new ArrayCollection();
         $this->notifications = new ArrayCollection();
@@ -182,31 +182,26 @@ class Tenant implements TenantInterface
     }
 
     /**
-     * @return Collection<int, User>
+     * @return Collection<int, Membership>
      */
-    public function getUsers(): Collection
+    public function getMemberships(): Collection
     {
-        return $this->users;
+        return $this->memberships;
     }
 
-    public function addUser(User $user): static
+    public function addMembership(Membership $membership): static
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->setTenant($this);
+        if (!$this->memberships->contains($membership)) {
+            $this->memberships->add($membership);
+            $membership->setTenant($this);
         }
 
         return $this;
     }
 
-    public function removeUser(User $user): static
+    public function removeMembership(Membership $membership): static
     {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getTenant() === $this) {
-                $user->setTenant(null);
-            }
-        }
+        $this->memberships->removeElement($membership);
 
         return $this;
     }

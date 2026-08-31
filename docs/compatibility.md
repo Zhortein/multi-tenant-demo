@@ -8,7 +8,7 @@ The bundle separately validates Symfony 8.1 on PHP 8.5 with both shared-database
 
 ## Release-candidate validation
 
-The demo requires the exact `1.0.0-rc.1` bundle release candidate and composer.lock records the tagged source commit. The committed lock file is the reproducibility boundary: ordinary installations must run composer install and must not resolve a development branch or a future stable version implicitly.
+The demo requires the exact `1.0.0-rc.2` bundle release candidate and composer.lock records the tagged source commit. The committed lock file is the reproducibility boundary: ordinary installations must run composer install and must not resolve a development branch or a future stable version implicitly.
 
 Dependabot must ignore `zhortein/multi-tenant-bundle` throughout this release-candidate validation period. Bundle upgrades are deliberate compatibility changes: Dependabot must not replace the exact RC constraint with `dev-develop`, another pre-release, or any other version. Remove the ignore rule only in the same reviewed change that adopts an approved bundle release according to this policy.
 
@@ -39,3 +39,6 @@ If a Dependabot pull request is exceptionally merged directly into `main`, synch
 3. Merge the latest `main` into that branch without rewriting either shared branch.
 4. Resolve conflicts by preserving the reviewed dependency constraints and lock file from the Dependabot change, then run the complete required CI again.
 5. Open a pull request from the synchronization branch to `develop`, merge it only when all required checks are green, and safely delete the merged synchronization branch.
+# RC2 validation target
+
+The fail-closed consumer target is PHP 8.5.9, Doctrine ORM 3.6, DBAL 4.4, DoctrineBundle 3.3, and PostgreSQL 18. The current published application graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC2 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed.

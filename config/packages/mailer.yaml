@@ -1,3 +1,6 @@
 framework:
     mailer:
         dsn: '%env(MAILER_DSN)%'
+        # Third-party SendEmailMessage cannot implement the bundle marker contracts.
+        # Keep Mailer synchronous instead of allowing an unclassified Messenger message.
+        message_bus: false

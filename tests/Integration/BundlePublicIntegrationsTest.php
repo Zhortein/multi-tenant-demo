@@ -7,6 +7,7 @@ namespace App\Tests\Integration;
 use App\Entity\Notification;
 use App\Entity\Tenant;
 use App\Message\SendNotificationMessage;
+use App\Message\GlobalHealthCheckMessage;
 use App\MessageHandler\SendNotificationMessageHandler;
 use App\Service\TenantMailerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,15 +16,16 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
-use Symfony\Component\Mime\Email;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
+use Zhortein\MultiTenantBundle\Doctrine\GlobalDoctrineScopeInterface;
 use Zhortein\MultiTenantBundle\Decorator\TenantCacheException;
 use Zhortein\MultiTenantBundle\Messenger\TenantStamp;
+use Zhortein\MultiTenantBundle\Exception\MissingTenantStampException;
+use Zhortein\MultiTenantBundle\Exception\UnknownTenantException;
 use Zhortein\MultiTenantBundle\Storage\TenantFileStorageInterface;
 use Zhortein\MultiTenantBundle\Storage\TenantStorageException;
 
@@ -124,27 +126,15 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         }
     }
 
-    public function testMailerUsesBundleDecoratorAndKeepsTenantSendersSeparated(): void
+    public function testMailerRunsSynchronouslyWithoutUnclassifiedThirdPartyMessages(): void
     {
         $mailer = self::getContainer()->get(TenantMailerService::class);
 
         $this->tenantContext->setTenant($this->tenant('tenant-a'));
         $mailer->sendSimpleEmail('recipient@example.test', 'A message', 'Tenant A body');
-        $envelopeA = $this->onlySentEnvelope();
-        self::assertSame((string) $this->tenant('tenant-a')->getId(), $envelopeA->last(TenantStamp::class)?->getTenantId());
-        $emailA = $this->emailFrom($envelopeA->getMessage());
-        self::assertSame('noreply@tenant-a.example.com', $emailA->getFrom()[0]->getAddress());
-        self::assertFalse($emailA->getHeaders()->has('X-Tenant-ID'));
-        self::assertFalse($emailA->getHeaders()->has('X-Tenant-Name'));
-
-        $this->transport()->reset();
         $this->tenantContext->setTenant($this->tenant('tenant-b'));
         $mailer->sendSimpleEmail('recipient@example.test', 'B message', 'Tenant B body');
-        $envelopeB = $this->onlySentEnvelope();
-        self::assertSame((string) $this->tenant('tenant-b')->getId(), $envelopeB->last(TenantStamp::class)?->getTenantId());
-        $emailB = $this->emailFrom($envelopeB->getMessage());
-        self::assertSame('noreply@tenant-b.example.com', $emailB->getFrom()[0]->getAddress());
-        self::assertNotSame($emailA->getFrom()[0]->getAddress(), $emailB->getFrom()[0]->getAddress());
+        self::assertSame([], $this->transport()->getSent(), 'Mailer must not emit an unclassified SendEmailMessage onto Messenger.');
     }
 
     public function testMailerFailsClosedWithoutTenantContext(): void
@@ -196,12 +186,45 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
 
         $bus->dispatch($queued->with(new ReceivedStamp('async')));
         self::assertNull($this->tenantContext->getTenant());
-        self::assertSame(Notification::STATUS_SENT, $notificationA->getStatus());
-        self::assertSame(Notification::STATUS_PENDING, $notificationB->getStatus());
+        self::assertSame(Notification::STATUS_SENT, $this->notificationStatus((int) $notificationA->getId()));
+        self::assertSame(Notification::STATUS_PENDING, $this->notificationStatus((int) $notificationB->getId()));
+    }
+
+    public function testMessengerRejectsMissingAndUnknownTenantBeforeHandlerAndAcceptsExplicitGlobalMessage(): void
+    {
+        $bus = self::getContainer()->get(MessageBusInterface::class);
+        $notification = $this->notification($this->tenant('tenant-a'), 'Must remain pending');
+        $this->tenantContext->clear();
+
+        try {
+            $bus->dispatch(new Envelope(
+                new SendNotificationMessage((int) $notification->getId()),
+                [new ReceivedStamp('async')],
+            ));
+            self::fail('A tenant-aware received message without stamp was accepted.');
+        } catch (MissingTenantStampException) {
+        }
+        self::assertSame(Notification::STATUS_PENDING, $notification->getStatus());
+        self::assertNull($this->tenantContext->getTenant());
+
+        try {
+            $bus->dispatch(new Envelope(
+                new SendNotificationMessage((int) $notification->getId()),
+                [new TenantStamp('999999'), new ReceivedStamp('async')],
+            ));
+            self::fail('An unknown tenant was accepted.');
+        } catch (UnknownTenantException) {
+        }
+        self::assertSame(Notification::STATUS_PENDING, $notification->getStatus());
+        self::assertNull($this->tenantContext->getTenant());
+
+        $bus->dispatch(new Envelope(new GlobalHealthCheckMessage(), [new ReceivedStamp('async')]));
+        self::assertNull($this->tenantContext->getTenant());
     }
 
     private function notification(Tenant $tenant, string $title): Notification
     {
+        $this->tenantContext->setTenant($tenant);
         $notification = (new Notification())
             ->setTenant($tenant)
             ->setTitle($title)
@@ -222,15 +245,6 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         return $sent[0];
     }
 
-    private function emailFrom(object $message): Email
-    {
-        self::assertInstanceOf(SendEmailMessage::class, $message);
-        $email = $message->getMessage();
-        self::assertInstanceOf(Email::class, $email);
-
-        return $email;
-    }
-
     private function transport(): InMemoryTransport
     {
         $transport = self::getContainer()->get('messenger.transport.async');
@@ -245,5 +259,15 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         self::assertInstanceOf(Tenant::class, $tenant);
 
         return $tenant;
+    }
+
+    private function notificationStatus(int $id): string
+    {
+        return self::getContainer()->get(GlobalDoctrineScopeInterface::class)->run(function () use ($id): string {
+            $notification = $this->entityManager->find(Notification::class, $id);
+            self::assertInstanceOf(Notification::class, $notification);
+
+            return $notification->getStatus();
+        });
     }
 }

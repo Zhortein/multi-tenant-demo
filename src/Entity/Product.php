@@ -8,7 +8,7 @@ use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Zhortein\MultiTenantBundle\Attribute\TenantAware;
+use Zhortein\MultiTenantBundle\Attribute\AsTenantAware;
 
 /**
  * Product entity with multi-tenant support.
@@ -19,7 +19,7 @@ use Zhortein\MultiTenantBundle\Attribute\TenantAware;
  */
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(name: 'products')]
-#[TenantAware(tenantFieldName: 'tenant')]
+#[AsTenantAware(tenantField: 'tenant')]
 class Product
 {
     #[ORM\Id]
