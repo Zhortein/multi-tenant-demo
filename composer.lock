@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93216d878c523665c5e556f20276b50f",
+    "content-hash": "b2b81ffb789c801cfaf599fdd38f48ae",
     "packages": [
         {
             "name": "composer/semver",
@@ -8179,16 +8179,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.3",
+            "version": "v1.0.0-rc.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "23d6f3d0a994a38674b3f838990180cef317258b"
+                "reference": "6695669aa3eb89baf984f10a7de78075412cd673"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/23d6f3d0a994a38674b3f838990180cef317258b",
-                "reference": "23d6f3d0a994a38674b3f838990180cef317258b",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/6695669aa3eb89baf984f10a7de78075412cd673",
+                "reference": "6695669aa3eb89baf984f10a7de78075412cd673",
                 "shasum": ""
             },
             "require": {
@@ -8265,7 +8265,7 @@
                     "role": "Owner, Developer"
                 }
             ],
-            "description": "A fail-closed Symfony 7.4 LTS and Symfony 8.x multi-tenant bundle with PostgreSQL 18 defense-in-depth support.",
+            "description": "A fail-closed Symfony 7.4 LTS and Symfony 8.x multi-tenant bundle with PostgreSQL >= 16 defense-in-depth support.",
             "homepage": "https://github.com/zhortein/multi-tenant-bundle",
             "keywords": [
                 "Messenger",
@@ -8291,7 +8291,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-08-31T13:21:51+00:00"
+            "time": "2026-09-01T03:34:47+00:00"
         }
     ],
     "packages-dev": [

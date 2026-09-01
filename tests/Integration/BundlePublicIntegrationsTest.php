@@ -20,6 +20,8 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\NamespacedPoolInterface;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 use Zhortein\MultiTenantBundle\Doctrine\GlobalDoctrineScopeInterface;
 use Zhortein\MultiTenantBundle\Decorator\TenantCacheException;
@@ -55,13 +57,19 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
     public function testSharedCacheUsesDistinctTenantNamespacesAndFailsWithoutContext(): void
     {
         $cache = self::getContainer()->get(CacheItemPoolInterface::class);
+        $contractCache = self::getContainer()->get(CacheInterface::class);
+        $namespacedCache = self::getContainer()->get(NamespacedPoolInterface::class)->withSubNamespace('dashboard_');
         $tenantA = $this->tenant('tenant-a');
         $tenantB = $this->tenant('tenant-b');
+
+        self::assertSame($cache, $contractCache);
+        self::assertInstanceOf(NamespacedPoolInterface::class, $cache);
 
         $this->tenantContext->setTenant($tenantA);
         $itemA = $cache->getItem('dashboard.summary');
         $itemA->set('tenant-a-value');
         self::assertTrue($cache->save($itemA));
+        self::assertTrue($namespacedCache->save($namespacedCache->getItem('summary')->set('tenant-a-namespaced')));
 
         $this->tenantContext->setTenant($tenantB);
         self::assertFalse($cache->getItem('dashboard.summary')->isHit());
@@ -69,9 +77,11 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         $itemB->set('tenant-b-value');
         self::assertTrue($cache->save($itemB));
         self::assertSame('tenant-b-value', $cache->getItem('dashboard.summary')->get());
+        self::assertFalse($namespacedCache->getItem('summary')->isHit());
 
         $this->tenantContext->setTenant($tenantA);
         self::assertSame('tenant-a-value', $cache->getItem('dashboard.summary')->get());
+        self::assertSame('tenant-a-namespaced', $namespacedCache->getItem('summary')->get());
         self::assertTrue($cache->deleteItem('dashboard.summary'));
 
         $this->tenantContext->setTenant($tenantB);
@@ -79,8 +89,14 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         self::assertTrue($cache->deleteItem('dashboard.summary'));
 
         $this->tenantContext->clear();
-        $this->expectException(TenantCacheException::class);
-        $cache->getItem('dashboard.summary');
+        try {
+            $cache->getItem('dashboard.summary');
+            self::fail('Missing tenant context must fail closed.');
+        } catch (TenantCacheException) {
+        }
+
+        $global = self::getContainer()->get('cache.global');
+        self::assertSame('global-value', $global->get('dashboard.summary', static fn (): string => 'global-value'));
     }
 
     public function testLocalStorageUsesRealTenantNamespacesAndRejectsTraversal(): void
