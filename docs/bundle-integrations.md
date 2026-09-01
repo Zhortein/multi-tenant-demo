@@ -18,14 +18,17 @@ make quality
 The test environment replaces the production Messenger transports with
 in-memory transports and the Mailer transport with `null://null`. Local storage
 uses the configured directory under `var/`; each test removes the files that it
-creates. PostgreSQL remains the real Doctrine database and the cache is the
-real `cache.app` service decorated by the bundle.
+creates. PostgreSQL remains the real Doctrine database and the cache is the real
+`cache.app` service explicitly decorated by bundle RC4. The application also
+defines a separate undecorated `cache.global` pool for explicitly global data.
 
 `tests/Integration/BundlePublicIntegrationsTest.php` proves the following
 consumer contracts with the deterministic `tenant-a` and `tenant-b` fixtures:
 
 - cache keys with the same logical name use distinct tenant namespaces and
-  missing context fails closed;
+  missing context fails closed; Symfony `CacheInterface` and
+  `NamespacedPoolInterface` remain available, consumer sub-namespaces stay
+  inside tenant boundaries, and explicitly global data uses `cache.global`;
 - local files with the same logical path are stored below distinct
   `tenants/{tenant}/` roots, cross-tenant deletion is isolated, traversal is
   rejected, and missing context fails closed;

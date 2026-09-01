@@ -15,5 +15,7 @@ framework:
         #app: cache.adapter.apcu
 
         # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+        pools:
+            # Explicitly global application data must use an undecorated pool.
+            cache.global:
+                adapter: cache.adapter.filesystem
