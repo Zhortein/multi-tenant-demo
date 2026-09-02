@@ -11,7 +11,7 @@ zhortein_multi_tenant:
         enable_filter: true    # enable automatic tenant filtering
         auto_tenant_id: true   # automatically add tenant_id to entities
 
-    # The reference application explicitly enables the RC4-compatible Symfony pool decorator.
+    # The reference application explicitly enables the reset-safe tenant cache decorator.
     decorators:
         cache:
             enabled: true

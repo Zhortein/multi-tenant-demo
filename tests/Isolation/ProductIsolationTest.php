@@ -12,8 +12,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 use Zhortein\MultiTenantBundle\Doctrine\GlobalDoctrineScopeInterface;
 use Zhortein\MultiTenantBundle\Exception\MissingTenantContextException;
@@ -129,7 +129,17 @@ final class ProductIsolationTest extends WebTestCase
         self::assertResponseRedirects('/tenant-a/products');
 
         $this->em()->clear();
-        self::assertNull($this->products->findOneBySkuForTenant('TENANT-A-DELETE', $this->tenant('tenant-a')));
+        $context = static::getContainer()->get(TenantContextInterface::class);
+        $tenant = $this->tenant('tenant-a');
+        $context->setTenant($tenant);
+        try {
+            self::assertNull($this->em()->getRepository(Product::class)->findOneBy([
+                'sku' => 'TENANT-A-DELETE',
+                'tenant' => $tenant,
+            ]));
+        } finally {
+            $context->clear();
+        }
     }
 
     public function testCreateUsesAuthorizedTenantAndIgnoresInjectedTenantParameters(): void
@@ -193,14 +203,14 @@ final class ProductIsolationTest extends WebTestCase
     {
         self::assertNotSame(0, $this->runCommand('app:test-tenant-features', ['tenant-slug' => 'missing', '--skip-storage' => true, '--skip-notifications' => true]));
         self::assertSame(0, $this->runCommand('app:test-tenant-features', ['tenant-slug' => 'tenant-a', '--skip-storage' => true, '--skip-notifications' => true]));
-        self::assertSame('tenant-a', static::getContainer()->get(TenantContextInterface::class)->getTenant()?->getSlug());
+        self::assertNull(static::getContainer()->get(TenantContextInterface::class)->getTenant());
         self::assertSame('Tenant B Product', $this->product('TENANT-B-PRODUCT')->getName());
     }
 
     public function testCliFailsClosedWhenTenantArgumentIsAbsent(): void
     {
-        $this->expectException(RuntimeException::class);
-        $this->runCommand('app:test-tenant-features');
+        self::assertNotSame(0, $this->runCommand('app:test-tenant-features'));
+        self::assertNull(static::getContainer()->get(TenantContextInterface::class)->getTenant());
     }
 
     private function freshProduct(string $sku): Product
@@ -242,7 +252,10 @@ final class ProductIsolationTest extends WebTestCase
         $application = new Application($this->client->getKernel());
         $application->setAutoExit(false);
 
-        return (new CommandTester($application->find($name)))->execute($input);
+        return $application->run(
+            new ArrayInput(['command' => $name, ...$input]),
+            new BufferedOutput(),
+        );
     }
 
     private function user(string $email): User

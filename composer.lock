@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b2b81ffb789c801cfaf599fdd38f48ae",
+    "content-hash": "386780b60000609bdc840a477f6f547c",
     "packages": [
         {
             "name": "composer/semver",
@@ -8179,16 +8179,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.4",
+            "version": "v1.0.0-rc.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "6695669aa3eb89baf984f10a7de78075412cd673"
+                "reference": "9fb4aa6cc38ccdb7adde351adbe95b60c6ea13fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/6695669aa3eb89baf984f10a7de78075412cd673",
-                "reference": "6695669aa3eb89baf984f10a7de78075412cd673",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/9fb4aa6cc38ccdb7adde351adbe95b60c6ea13fd",
+                "reference": "9fb4aa6cc38ccdb7adde351adbe95b60c6ea13fd",
                 "shasum": ""
             },
             "require": {
@@ -8211,7 +8211,8 @@
                 "symfony/finder": "^7.4 || ^8.0",
                 "symfony/http-foundation": "^7.4 || ^8.0",
                 "symfony/http-kernel": "^7.4 || ^8.0",
-                "symfony/messenger": "^7.4 || ^8.0"
+                "symfony/messenger": "^7.4 || ^8.0",
+                "symfony/service-contracts": "^3.4"
             },
             "conflict": {
                 "psr/simple-cache": "<3.0"
@@ -8291,7 +8292,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-09-01T03:34:47+00:00"
+            "time": "2026-09-02T06:17:07+00:00"
         }
     ],
     "packages-dev": [

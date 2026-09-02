@@ -16,14 +16,4 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    
-    # Fix for zhortein/multi-tenant-bundle TenantSettingsManager service definition bug
-    # The bundle incorrectly tries to inject a $cacheTtl parameter that doesn't exist
-    Zhortein\MultiTenantBundle\Manager\TenantSettingsManager:
-        arguments:
-            $tenantContext: '@Zhortein\MultiTenantBundle\Context\TenantContextInterface'
-            $settingRepository: '@Zhortein\MultiTenantBundle\Repository\TenantSettingRepository'
-            $cache: '@cache.app'
-            $parameterBag: '@parameter_bag'
+    # Add explicit application service definitions here when needed.
