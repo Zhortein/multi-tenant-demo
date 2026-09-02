@@ -190,6 +190,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
             new SendNotificationMessage((int) $notificationA->getId()),
             [new TenantStamp((string) $tenantB->getId()), new ReceivedStamp('async')],
         );
+        $this->tenantContext->setTenant($tenantA);
         try {
             $bus->dispatch($tampered);
             self::fail('A message stamped for another tenant must fail.');
@@ -210,7 +211,6 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
     {
         $bus = self::getContainer()->get(MessageBusInterface::class);
         $notification = $this->notification($this->tenant('tenant-a'), 'Must remain pending');
-        $this->tenantContext->clear();
 
         try {
             $bus->dispatch(new Envelope(
@@ -223,6 +223,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         self::assertSame(Notification::STATUS_PENDING, $notification->getStatus());
         self::assertNull($this->tenantContext->getTenant());
 
+        $this->tenantContext->setTenant($this->tenant('tenant-a'));
         try {
             $bus->dispatch(new Envelope(
                 new SendNotificationMessage((int) $notification->getId()),
@@ -234,6 +235,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         self::assertSame(Notification::STATUS_PENDING, $notification->getStatus());
         self::assertNull($this->tenantContext->getTenant());
 
+        $this->tenantContext->setTenant($this->tenant('tenant-a'));
         $bus->dispatch(new Envelope(new GlobalHealthCheckMessage(), [new ReceivedStamp('async')]));
         self::assertNull($this->tenantContext->getTenant());
     }
