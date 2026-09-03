@@ -360,4 +360,4 @@ Tenant-aware ORM reads and writes require an active tenant and fail before an un
 
 Every application message implements exactly one bundle marker interface. `SendNotificationMessage` is tenant-aware, while `GlobalHealthCheckMessage` demonstrates the explicit global contract. Missing, unknown, or contradictory tenant metadata is rejected before handlers run.
 
-For local bundle development, validate from an isolated copy of this repository with a Composer `path` repository pointing at the bundle checkout. Do not add that machine-specific repository to this published project. The committed dependency and lock file use the published RC2 package from Packagist.
+For local bundle development, validate from an isolated copy of this repository with a Composer `path` repository pointing at the bundle checkout. Do not add that machine-specific repository to this published project. The committed dependency and lock file use the published RC7 package from Packagist.

@@ -19,10 +19,10 @@ The test environment replaces the production Messenger transports with
 in-memory transports and the Mailer transport with `null://null`. Local storage
 uses the configured directory under `var/`; each test removes the files that it
 creates. PostgreSQL remains the real Doctrine database and the cache is the real
-`cache.app` service explicitly decorated by bundle RC5. The application also
+`cache.app` service explicitly decorated by bundle RC7. The application also
 defines a separate undecorated `cache.global` pool for explicitly global data.
 
-RC5 treats every main HTTP request, Messenger delivery, Scheduler execution,
+RC7 treats every main HTTP request, Messenger delivery, Scheduler execution,
 and Console command as a tenant-state boundary. The demo uses the early path
 resolver because its tenant identity is infrastructure-derived. A main request
 starts from `NONE`, and null resolution, controller failure, terminal cleanup,

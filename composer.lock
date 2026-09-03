@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "386780b60000609bdc840a477f6f547c",
+    "content-hash": "2780adf041c19887bee57fabd0bb9eba",
     "packages": [
         {
             "name": "composer/semver",
@@ -8179,16 +8179,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.5",
+            "version": "v1.0.0-rc.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "9fb4aa6cc38ccdb7adde351adbe95b60c6ea13fd"
+                "reference": "2faebedf3619ce2313339c6ac9103d16f66d543d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/9fb4aa6cc38ccdb7adde351adbe95b60c6ea13fd",
-                "reference": "9fb4aa6cc38ccdb7adde351adbe95b60c6ea13fd",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/2faebedf3619ce2313339c6ac9103d16f66d543d",
+                "reference": "2faebedf3619ce2313339c6ac9103d16f66d543d",
                 "shasum": ""
             },
             "require": {
@@ -8292,7 +8292,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-09-02T06:17:07+00:00"
+            "time": "2026-09-03T08:59:28+00:00"
         }
     ],
     "packages-dev": [
