@@ -9,6 +9,7 @@ The application now includes comprehensive tenant-aware functionality that demon
 - **Tenant-Isolated Storage**: Files are stored in tenant-specific directories
 - **Tenant-Aware Notifications**: In-app and email notifications with tenant context
 - **Tenant-Aware Messaging**: Async processing via Symfony Messenger with tenant isolation
+- **Persistent Scheduling**: Symfony Scheduler redispatches classified messages to a Doctrine queue before application handling
 - **Tenant-Specific Email**: Email notifications with tenant branding and isolation
 
 ## Features
@@ -111,6 +112,26 @@ php bin/console messenger:consume notifications -vv
 # Check message statistics
 php bin/console messenger:stats
 ```
+
+### 4. Symfony Scheduler Integration
+
+The `health_check` schedule demonstrates the global-message path. It wraps
+`GlobalHealthCheckMessage` in Symfony's `RedispatchMessage` and preserves
+Symfony's destination, `scheduler_persistent`:
+
+```bash
+# Generates due messages and persists them; no application handler runs here.
+php bin/console messenger:consume scheduler_health_check -vv
+
+# Deserializes and handles the persisted application message.
+php bin/console messenger:consume scheduler_persistent -vv
+```
+
+Do not schedule the application message directly when persistent processing is
+required. Scheduler adds a `ReceivedStamp`, so a directly scheduled message may
+be handled inside the Scheduler Worker. RC9 validates the classified application
+message inside `RedispatchMessage`, then validates it again after it returns
+from the persistent transport.
 
 ## Testing
 

@@ -19,10 +19,10 @@ The test environment replaces the production Messenger transports with
 in-memory transports and the Mailer transport with `null://null`. Local storage
 uses the configured directory under `var/`; each test removes the files that it
 creates. PostgreSQL remains the real Doctrine database and the cache is the real
-`cache.app` service explicitly decorated by bundle RC8. The application also
+`cache.app` service explicitly decorated by bundle RC9. The application also
 defines a separate undecorated `cache.global` pool for explicitly global data.
 
-RC8 treats every main HTTP request, Messenger delivery, Scheduler execution,
+RC9 treats every main HTTP request, Messenger delivery, Scheduler execution,
 and Console command as a tenant-state boundary. The demo uses the early path
 resolver because its tenant identity is infrastructure-derived. A main request
 starts from `NONE`, and null resolution, controller failure, terminal cleanup,
@@ -53,8 +53,16 @@ consumer contracts with the deterministic `tenant-a` and `tenant-b` fixtures:
   and an explicit `TransportNamesStamp` remains authoritative.
 - A message with a handler but no native route is handled synchronously.
   Applications that require asynchronous delivery must therefore route every
-  such message exhaustively; RC8 deliberately provides no default-transport
+  such message exhaustively; RC9 deliberately provides no default-transport
   fallback in `symfony_routing` mode.
+- `tests/Integration/SchedulerRedispatchTest.php` drives a real
+  `SchedulerTransport`, `MessageGenerator`, controlled `MockClock`, Messenger
+  bus, and two real Workers. Its global health-check message is wrapped in
+  `RedispatchMessage` for `scheduler_persistent`: the Scheduler Worker leaves
+  the application handler untouched and writes exactly one serialized Doctrine
+  message, then the application Worker handles it, empties the queue, and leaves
+  tenant context empty. The destination remains Symfony-owned; the bundle does
+  not add a replacement `TransportNamesStamp` in `symfony_routing` mode.
 
 `tests/Integration/PersistentTenantLifecycleTest.php` reuses one kernel and one
 Console application to prove `A -> NONE`, `A -> exception -> NONE`,
@@ -72,7 +80,8 @@ defense in depth.
 The demo validates the supported shared-database consumer path on Symfony 7.4
 LTS and PHP 8.3. The bundle's own matrix separately validates Symfony 7.4,
 8.0, and 8.1, PHP 8.3 through 8.5, the multi-database strategy, and effective
-PostgreSQL row-level security. The demo does not claim that an in-memory
-transport proves an external queue broker; it proves native sender selection,
-serialization-independent envelope metadata, and the same middleware/handler
-path used by a worker.
+PostgreSQL row-level security. The demo uses in-memory transports for native
+sender-selection tests and a real Doctrine transport for Scheduler redispatch.
+The latter proves the serialization boundary and separation between the
+Scheduler and application Workers without claiming support for a separate
+external broker.

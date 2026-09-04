@@ -2,13 +2,13 @@
 
 ## Supported application baseline
 
-The demo currently targets PHP 8.3 or later, Symfony 7.4 LTS, DoctrineBundle 2.19, Doctrine ORM 3.6, and Doctrine DBAL 4.4. This is an explicitly tested bundle matrix entry and remains covered alongside newer framework combinations.
+The demo currently targets PHP 8.3 or later, Symfony 7.4 LTS including Scheduler, DoctrineBundle 2.19, Doctrine ORM 3.6, and Doctrine DBAL 4.4. This is an explicitly tested bundle matrix entry and remains covered alongside newer framework combinations.
 
 The bundle separately validates Symfony 8.1 on PHP 8.5 with both shared-database and multi-database consumer configurations. The full demo remains on Symfony 7.4 because its current stable DoctrineBundle, MonologBundle, and FrankenPHP runtime dependencies do not yet permit Symfony 8.1. This limitation is outside the bundle and must not be hidden by removing documented demo features.
 
 ## Release-candidate validation
 
-The demo requires the exact `1.0.0-rc.8` bundle release candidate and `composer.lock` records the tagged source commit. The committed lock file is the reproducibility boundary: ordinary installations must run `composer install` and must not resolve a development branch or a future stable version implicitly.
+The demo requires the exact `1.0.0-rc.9` bundle release candidate and `composer.lock` records the tagged source commit `9af00b6903803b627dd5b08119bcb5ab49d7a713`. The committed lock file is the reproducibility boundary: ordinary installations must run `composer install` and must not resolve a development branch or a future stable version implicitly.
 
 Dependabot must ignore `zhortein/multi-tenant-bundle` throughout this release-candidate validation period. Bundle upgrades are deliberate compatibility changes: Dependabot must not replace the exact RC constraint with `dev-develop`, another pre-release, or any other version. Remove the ignore rule only in the same reviewed change that adopts an approved bundle release according to this policy.
 
@@ -39,13 +39,23 @@ If a Dependabot pull request is exceptionally merged directly into `main`, synch
 3. Merge the latest `main` into that branch without rewriting either shared branch.
 4. Resolve conflicts by preserving the reviewed dependency constraints and lock file from the Dependabot change, then run the complete required CI again.
 5. Open a pull request from the synchronization branch to `develop`, merge it only when all required checks are green, and safely delete the merged synchronization branch.
-# RC8 validation target
+# RC9 validation target
 
-The fail-closed consumer target is PHP 8.5.9, Symfony 8.1.5, Doctrine ORM 3.6.8, DBAL 4.4.4, DoctrineBundle 3.3.1, DoctrineMigrationsBundle 4.0.1, and PostgreSQL 16 through 18. The current published demo graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC8 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed.
+The fail-closed consumer target is PHP 8.5.9, Symfony Messenger and Scheduler 8.1.5, Doctrine Messenger 8.1.4, Doctrine ORM 3.6.8, DBAL 4.4.4, DoctrineBundle 3.3.1, DoctrineMigrationsBundle 4.0.1, and PostgreSQL 16 through 18. The current published demo graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC9 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed.
 
 This demo uses one shared database and manages its application schema through
 `doctrine:migrations:migrate`; it does not declare per-tenant migration paths or
 tenant-specific connections. Consequently, `tenant:migrate` is not part of the
-demo's operational contract. RC8's real normal, dry-run, idempotence, failure,
+demo's operational contract. RC9's real normal, dry-run, idempotence, failure,
 and connection-cleanup scenarios are exercised by the bundle's isolated public
 consumer with DoctrineMigrationsBundle 4.0.1 on PostgreSQL 16 and 18.
+
+The demo's `health_check` schedule uses the public Symfony Scheduler contract.
+It redispatches a globally classified application message to the persistent
+`scheduler_persistent` transport. Both passes traverse the bundle-protected bus:
+the control message is validated before persistence, and the deserialized
+application message is validated again before its handler. Tenant-aware
+schedules use the same `RedispatchMessage` shape with exactly one `TenantStamp`
+on the encapsulated application envelope, using an identifier obtained from
+trusted infrastructure. They must not place an unwrapped application message on
+a schedule when deferred persistent processing is required.
