@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "857fd6f474f5e892b181c1cc493eabdc",
+    "content-hash": "0471244c90598fa27179c1d7a3897a5c",
     "packages": [
         {
             "name": "composer/semver",
@@ -6160,6 +6160,91 @@
             "time": "2026-06-05T06:22:21+00:00"
         },
         {
+            "name": "symfony/scheduler",
+            "version": "v7.4.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/scheduler.git",
+                "reference": "a15e4b3c02dcb87b98d3dbccad63789dead5afd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/scheduler/zipball/a15e4b3c02dcb87b98d3dbccad63789dead5afd4",
+                "reference": "a15e4b3c02dcb87b98d3dbccad63789dead5afd4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/clock": "^6.4|^7.0|^8.0"
+            },
+            "require-dev": {
+                "dragonmantank/cron-expression": "^3.1",
+                "symfony/cache": "^6.4.36|^7.4.8|^8.0.8",
+                "symfony/console": "^6.4|^7.0|^8.0",
+                "symfony/dependency-injection": "^6.4|^7.0|^8.0",
+                "symfony/event-dispatcher": "^6.4|^7.0|^8.0",
+                "symfony/lock": "^6.4|^7.0|^8.0",
+                "symfony/messenger": "^6.4|^7.0|^8.0",
+                "symfony/serializer": "^6.4|^7.1|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Scheduler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sergey Rabochiy",
+                    "email": "upyx.00@gmail.com"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides scheduling through Symfony Messenger",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cron",
+                "schedule",
+                "scheduler"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/scheduler/tree/v7.4.17"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-08-21T17:40:08+00:00"
+        },
+        {
             "name": "symfony/security-bundle",
             "version": "v7.4.15",
             "source": {
@@ -8179,16 +8264,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.8",
+            "version": "v1.0.0-rc.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "72e422c885e2e7bc55abb6962e78e9aefc6e1b5c"
+                "reference": "9af00b6903803b627dd5b08119bcb5ab49d7a713"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/72e422c885e2e7bc55abb6962e78e9aefc6e1b5c",
-                "reference": "72e422c885e2e7bc55abb6962e78e9aefc6e1b5c",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/9af00b6903803b627dd5b08119bcb5ab49d7a713",
+                "reference": "9af00b6903803b627dd5b08119bcb5ab49d7a713",
                 "shasum": ""
             },
             "require": {
@@ -8231,6 +8316,7 @@
                 "symfony/dom-crawler": "^7.4 || ^8.0",
                 "symfony/mailer": "^7.4 || ^8.0",
                 "symfony/phpunit-bridge": "^7.4 || ^8.0",
+                "symfony/scheduler": "^7.4 || ^8.0",
                 "symfony/twig-bundle": "^7.4 || ^8.0",
                 "symfony/yaml": "^7.4 || ^8.0"
             },
@@ -8241,6 +8327,7 @@
                 "symfony/browser-kit": "Needed by consumers extending the optional TenantWebTestCase",
                 "symfony/dom-crawler": "Needed by consumers making crawler-based requests with TenantWebTestCase",
                 "symfony/mailer": "Needed for dynamic tenant-aware mail sending",
+                "symfony/scheduler": "Needed to define recurring messages and redispatch them to persistent Messenger transports",
                 "symfony/twig-bundle": "Needed for templated tenant-aware emails"
             },
             "type": "symfony-bundle",
@@ -8292,7 +8379,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-09-04T06:22:33+00:00"
+            "time": "2026-09-04T15:38:33+00:00"
         }
     ],
     "packages-dev": [

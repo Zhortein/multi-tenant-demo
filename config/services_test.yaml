@@ -7,3 +7,8 @@ services:
         public: true
 
     App\Tests\Fixtures\Messenger\SynchronousTenantMessageHandler: ~
+
+    App\Tests\Fixtures\Scheduler\SchedulerExecutionProbe:
+        public: true
+
+    App\Tests\Fixtures\Scheduler\SchedulerExecutionProbeHandler: ~
