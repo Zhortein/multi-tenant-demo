@@ -363,6 +363,15 @@ Tenant-aware ORM reads and writes require an active tenant and fail before an un
 
 Every application message implements exactly one bundle marker interface. `SendNotificationMessage` is tenant-aware, while `GlobalHealthCheckMessage` demonstrates the explicit global contract. Missing, unknown, or contradictory tenant metadata is rejected before handlers run.
 
+The `health_check` schedule wraps its global application message in Symfony's
+`RedispatchMessage` and targets the persistent `scheduler_persistent` Doctrine
+transport. Run `messenger:consume scheduler_health_check` for the Scheduler
+Worker and `messenger:consume scheduler_persistent` for the application Worker.
+The first Worker only persists the message; it must never invoke the application
+handler directly. Scheduling the application message without redispatch would
+allow the Scheduler Worker to handle it because Scheduler messages carry a
+`ReceivedStamp`.
+
 Bundle release validation uses the immutable public package from Packagist. Do
 not add a Composer `path`, VCS, fork, or branch repository to this project. The
-committed dependency and lock file use exactly published RC8.
+committed dependency and lock file use exactly published RC9.

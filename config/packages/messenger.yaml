@@ -20,6 +20,14 @@ framework:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+            scheduler_persistent:
+                dsn: '%env(MESSENGER_SCHEDULER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 60000
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 
