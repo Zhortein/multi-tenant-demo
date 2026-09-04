@@ -4,3 +4,14 @@ framework:
     messenger:
         transports:
             async: 'in-memory://'
+            notifications: 'in-memory://'
+        routing:
+            App\Tests\Fixtures\Message\ConfiguredAndAttributedTenantMessage: notifications
+
+zhortein_multi_tenant:
+    messenger:
+        # Deliberately points elsewhere than the configured notification route:
+        # native Symfony routing must remain authoritative in this environment.
+        default_transport: async
+        tenant_transport_map:
+            routing-test: async

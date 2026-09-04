@@ -288,7 +288,7 @@ final class TestTenantFeaturesCommand extends Command
 
         $io->note([
             'To process queued messages, run:',
-            'php bin/console messenger:consume async -vv',
+            'php bin/console messenger:consume notifications -vv',
             '',
             'To view the results in the web interface, visit:',
             "/{$this->tenantContext->getTenant()->getSlug()}/documents",

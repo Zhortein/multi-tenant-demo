@@ -46,6 +46,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $this->tenantContext = self::getContainer()->get(TenantContextInterface::class);
         $this->transport()->reset();
+        $this->transport('notifications')->reset();
     }
 
     protected function tearDown(): void
@@ -188,7 +189,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
 
         $tampered = new Envelope(
             new SendNotificationMessage((int) $notificationA->getId()),
-            [new TenantStamp((string) $tenantB->getId()), new ReceivedStamp('async')],
+            [new TenantStamp((string) $tenantB->getId()), new ReceivedStamp('notifications')],
         );
         $this->tenantContext->setTenant($tenantA);
         try {
@@ -201,7 +202,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         self::assertSame(Notification::STATUS_PENDING, $notificationA->getStatus());
         self::assertSame(Notification::STATUS_PENDING, $notificationB->getStatus());
 
-        $bus->dispatch($queued->with(new ReceivedStamp('async')));
+        $bus->dispatch($queued->with(new ReceivedStamp('notifications')));
         self::assertNull($this->tenantContext->getTenant());
         self::assertSame(Notification::STATUS_SENT, $this->notificationStatus((int) $notificationA->getId()));
         self::assertSame(Notification::STATUS_PENDING, $this->notificationStatus((int) $notificationB->getId()));
@@ -215,7 +216,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         try {
             $bus->dispatch(new Envelope(
                 new SendNotificationMessage((int) $notification->getId()),
-                [new ReceivedStamp('async')],
+                [new ReceivedStamp('notifications')],
             ));
             self::fail('A tenant-aware received message without stamp was accepted.');
         } catch (MissingTenantStampException) {
@@ -227,7 +228,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         try {
             $bus->dispatch(new Envelope(
                 new SendNotificationMessage((int) $notification->getId()),
-                [new TenantStamp('999999'), new ReceivedStamp('async')],
+                [new TenantStamp('999999'), new ReceivedStamp('notifications')],
             ));
             self::fail('An unknown tenant was accepted.');
         } catch (UnknownTenantException) {
@@ -257,15 +258,15 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
 
     private function onlySentEnvelope(): \Symfony\Component\Messenger\Envelope
     {
-        $sent = $this->transport()->getSent();
+        $sent = $this->transport('notifications')->getSent();
         self::assertCount(1, $sent);
 
         return $sent[0];
     }
 
-    private function transport(): InMemoryTransport
+    private function transport(string $name = 'async'): InMemoryTransport
     {
-        $transport = self::getContainer()->get('messenger.transport.async');
+        $transport = self::getContainer()->get('messenger.transport.'.$name);
         self::assertInstanceOf(InMemoryTransport::class, $transport);
 
         return $transport;

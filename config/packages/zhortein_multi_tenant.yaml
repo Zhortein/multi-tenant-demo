@@ -23,6 +23,12 @@ zhortein_multi_tenant:
         add_tenant_id_header: false
         add_tenant_name_header: false
 
+    # Keep tenant propagation and validation while delegating sender selection
+    # to framework.messenger.routing, AsMessage, or an explicit transport stamp.
+    messenger:
+        enabled: true
+        routing_strategy: 'symfony_routing'
+
     storage:
         enabled: true
         type: 'local'

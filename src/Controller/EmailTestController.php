@@ -171,7 +171,7 @@ final class EmailTestController extends AbstractController
 
             if ($sendAsync) {
                 $this->addFlash('success', sprintf(
-                    '✅ Notification queued for async processing (ID: %d). Run "php bin/console messenger:consume async" to process it.',
+                    '✅ Notification queued for async processing (ID: %d). Run "php bin/console messenger:consume notifications" to process it.',
                     $notification->getId()
                 ));
                 

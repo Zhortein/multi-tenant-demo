@@ -12,6 +12,14 @@ framework:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+            notifications:
+                dsn: '%env(MESSENGER_NOTIFICATIONS_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 60000
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 
@@ -25,5 +33,5 @@ framework:
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 
-            # Route our custom messages to async transport
-            App\Message\SendNotificationMessage: async
+            # Keep application notification traffic on its own logical queue.
+            App\Message\SendNotificationMessage: notifications
