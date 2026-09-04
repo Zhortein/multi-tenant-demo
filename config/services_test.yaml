@@ -1,0 +1,9 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Tests\Fixtures\Messenger\RoutingProbe:
+        public: true
+
+    App\Tests\Fixtures\Messenger\SynchronousTenantMessageHandler: ~

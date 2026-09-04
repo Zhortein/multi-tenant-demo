@@ -100,13 +100,13 @@ $stats = $notificationService->getNotificationStats();
 framework:
     messenger:
         routing:
-            App\Message\SendNotificationMessage: async
+            App\Message\SendNotificationMessage: notifications
 ```
 
 **Processing Messages:**
 ```bash
 # Process queued messages
-php bin/console messenger:consume async -vv
+php bin/console messenger:consume notifications -vv
 
 # Check message statistics
 php bin/console messenger:stats
@@ -312,7 +312,7 @@ php bin/console app:test-tenant-features {tenant-slug}
 php bin/console messenger:stats
 
 # Process messages manually
-php bin/console messenger:consume async --limit=10
+php bin/console messenger:consume notifications --limit=10
 
 # Clear cache
 php bin/console cache:clear

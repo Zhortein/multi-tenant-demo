@@ -181,6 +181,9 @@ zhortein_multi_tenant:
         enabled: true
         add_tenant_id_header: false
         add_tenant_name_header: false
+    messenger:
+        enabled: true
+        routing_strategy: 'symfony_routing'
     storage:
         enabled: true
         type: 'local'
@@ -360,4 +363,6 @@ Tenant-aware ORM reads and writes require an active tenant and fail before an un
 
 Every application message implements exactly one bundle marker interface. `SendNotificationMessage` is tenant-aware, while `GlobalHealthCheckMessage` demonstrates the explicit global contract. Missing, unknown, or contradictory tenant metadata is rejected before handlers run.
 
-For local bundle development, validate from an isolated copy of this repository with a Composer `path` repository pointing at the bundle checkout. Do not add that machine-specific repository to this published project. The committed dependency and lock file use the published RC7 package from Packagist.
+Bundle release validation uses the immutable public package from Packagist. Do
+not add a Composer `path`, VCS, fork, or branch repository to this project. The
+committed dependency and lock file use exactly published RC8.
