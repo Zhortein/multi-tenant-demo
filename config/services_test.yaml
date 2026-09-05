@@ -6,6 +6,9 @@ services:
     App\Tests\Fixtures\Messenger\RoutingProbe:
         public: true
 
+    App\Tests\Fixtures\Messenger\MiddlewareExecutionProbe:
+        public: true
+
     App\Tests\Fixtures\Messenger\SynchronousTenantMessageHandler: ~
 
     App\Tests\Fixtures\Scheduler\SchedulerExecutionProbe:

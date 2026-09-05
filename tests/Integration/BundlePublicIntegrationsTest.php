@@ -20,6 +20,7 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\NamespacedPoolInterface;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
@@ -166,6 +167,11 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
 
     public function testMessengerRetainsContextAndHandlerRejectsMismatchedTenant(): void
     {
+        $validationTenants = [];
+        self::getContainer()->get('validator')->getMetadataFor(SendNotificationMessage::class)
+            ->addConstraint(new Callback(function () use (&$validationTenants): void {
+                $validationTenants[] = $this->tenantContext->getTenant()?->getSlug();
+            }));
         $tenantA = $this->tenant('tenant-a');
         $tenantB = $this->tenant('tenant-b');
         $notificationA = $this->notification($tenantA, 'Tenant A async');
@@ -177,6 +183,7 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         $queued = $this->onlySentEnvelope();
         self::assertSame((string) $tenantA->getId(), $queued->last(TenantStamp::class)?->getTenantId());
         self::assertCount(1, $queued->all(TenantStamp::class));
+        self::assertSame(['tenant-a'], $validationTenants);
 
         $this->tenantContext->clear();
         try {
@@ -201,11 +208,13 @@ final class BundlePublicIntegrationsTest extends KernelTestCase
         self::assertNull($this->tenantContext->getTenant());
         self::assertSame(Notification::STATUS_PENDING, $notificationA->getStatus());
         self::assertSame(Notification::STATUS_PENDING, $notificationB->getStatus());
+        self::assertSame(['tenant-a', 'tenant-b'], $validationTenants);
 
         $bus->dispatch($queued->with(new ReceivedStamp('notifications')));
         self::assertNull($this->tenantContext->getTenant());
         self::assertSame(Notification::STATUS_SENT, $this->notificationStatus((int) $notificationA->getId()));
         self::assertSame(Notification::STATUS_PENDING, $this->notificationStatus((int) $notificationB->getId()));
+        self::assertSame(['tenant-a', 'tenant-b', 'tenant-a'], $validationTenants);
     }
 
     public function testMessengerRejectsMissingAndUnknownTenantBeforeHandlerAndAcceptsExplicitGlobalMessage(): void

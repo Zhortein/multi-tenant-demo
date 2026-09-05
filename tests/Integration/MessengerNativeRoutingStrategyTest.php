@@ -9,12 +9,14 @@ use App\Message\SendNotificationMessage;
 use App\Tests\Fixtures\Message\AttributeRoutedTenantMessage;
 use App\Tests\Fixtures\Message\ConfiguredAndAttributedTenantMessage;
 use App\Tests\Fixtures\Message\SynchronousTenantMessage;
+use App\Tests\Fixtures\Messenger\MiddlewareExecutionProbe;
 use App\Tests\Fixtures\Messenger\RoutingProbe;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
+use Zhortein\MultiTenantBundle\Exception\UnclassifiedMessageException;
 
 final class MessengerNativeRoutingStrategyTest extends KernelTestCase
 {
@@ -87,6 +89,18 @@ final class MessengerNativeRoutingStrategyTest extends KernelTestCase
         self::assertCount(0, $this->transport('async')->getSent());
         self::assertCount(0, $this->transport('notifications')->getSent());
         self::assertNull($envelope->last(TransportNamesStamp::class));
+    }
+
+    public function testUnclassifiedMessageIsRejectedBeforeApplicationMiddlewareAndTransport(): void
+    {
+        try {
+            $this->bus->dispatch(new \stdClass(), [new TransportNamesStamp(['async'])]);
+            self::fail('An unclassified message reached the transport.');
+        } catch (UnclassifiedMessageException) {
+        }
+
+        self::assertSame([], $this->transport('async')->getSent());
+        self::assertSame([], self::getContainer()->get(MiddlewareExecutionProbe::class)->events);
     }
 
     private function transport(string $name): InMemoryTransport

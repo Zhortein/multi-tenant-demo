@@ -8,7 +8,7 @@ The bundle separately validates Symfony 8.1 on PHP 8.5 with both shared-database
 
 ## Release-candidate validation
 
-The demo requires the exact `1.0.0-rc.9` bundle release candidate and `composer.lock` records the tagged source commit `9af00b6903803b627dd5b08119bcb5ab49d7a713`. The committed lock file is the reproducibility boundary: ordinary installations must run `composer install` and must not resolve a development branch or a future stable version implicitly.
+The demo requires the exact `1.0.0-rc.10` bundle release candidate and `composer.lock` records the tagged source commit `57856fc60579c8ece035b3160aa2c213e642a834`. The committed lock file is the reproducibility boundary: ordinary installations must run `composer install` and must not resolve a development branch or a future stable version implicitly.
 
 Dependabot must ignore `zhortein/multi-tenant-bundle` throughout this release-candidate validation period. Bundle upgrades are deliberate compatibility changes: Dependabot must not replace the exact RC constraint with `dev-develop`, another pre-release, or any other version. Remove the ignore rule only in the same reviewed change that adopts an approved bundle release according to this policy.
 
@@ -39,14 +39,14 @@ If a Dependabot pull request is exceptionally merged directly into `main`, synch
 3. Merge the latest `main` into that branch without rewriting either shared branch.
 4. Resolve conflicts by preserving the reviewed dependency constraints and lock file from the Dependabot change, then run the complete required CI again.
 5. Open a pull request from the synchronization branch to `develop`, merge it only when all required checks are green, and safely delete the merged synchronization branch.
-# RC9 validation target
+# RC10 validation target
 
-The fail-closed consumer target is PHP 8.5.9, Symfony Messenger and Scheduler 8.1.5, Doctrine Messenger 8.1.4, Doctrine ORM 3.6.8, DBAL 4.4.4, DoctrineBundle 3.3.1, DoctrineMigrationsBundle 4.0.1, and PostgreSQL 16 through 18. The current published demo graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC9 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed.
+The fail-closed consumer target is PHP 8.5.9, Symfony Messenger and Scheduler 8.1.5, Doctrine Messenger 8.1.4, Doctrine ORM 3.6.8, DBAL 4.4.4, DoctrineBundle 3.3.1, DoctrineMigrationsBundle 4.0.1, and PostgreSQL 16 through 18. The current published demo graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC10 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed.
 
 This demo uses one shared database and manages its application schema through
 `doctrine:migrations:migrate`; it does not declare per-tenant migration paths or
 tenant-specific connections. Consequently, `tenant:migrate` is not part of the
-demo's operational contract. RC9's real normal, dry-run, idempotence, failure,
+demo's operational contract. RC10's real normal, dry-run, idempotence, failure,
 and connection-cleanup scenarios are exercised by the bundle's isolated public
 consumer with DoctrineMigrationsBundle 4.0.1 on PostgreSQL 16 and 18.
 
@@ -59,3 +59,10 @@ schedules use the same `RedispatchMessage` shape with exactly one `TenantStamp`
 on the encapsulated application envelope, using an identifier obtained from
 trusted infrastructure. They must not place an unwrapped application message on
 a schedule when deferred persistent processing is required.
+
+RC10 keeps `symfony/messenger` mandatory, preserving RC9 consumers that rely on
+the transitive dependency and the existing public middleware constructors. The
+demo's explicit `validation` list now also exercises the RC10 composition fix.
+Tests add an application middleware witness and prove validation under the
+received tenant, plus Scheduler persistence and cleanup after success and
+failure. See [the executable integration contract](bundle-integrations.md).

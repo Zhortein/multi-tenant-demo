@@ -374,4 +374,10 @@ allow the Scheduler Worker to handle it because Scheduler messages carry a
 
 Bundle release validation uses the immutable public package from Packagist. Do
 not add a Composer `path`, VCS, fork, or branch repository to this project. The
-committed dependency and lock file use exactly published RC9.
+committed dependency and lock file use exactly published RC10.
+
+The default Messenger bus explicitly enables `validation`. Integration tests
+combine it with an application middleware witness and the bundle's automatic
+tenant guards, including real Scheduler redispatch through Doctrine and a
+separate application Worker. The proof covers success and handler exceptions;
+see [the RC10 composition checks](docs/bundle-integrations.md#rc10-middleware-composition-proof).

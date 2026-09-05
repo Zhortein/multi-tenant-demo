@@ -4,26 +4,38 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration;
 
+use App\Message\GlobalHealthCheckMessage;
 use App\Schedule;
+use App\Tests\Fixtures\Messenger\MiddlewareExecutionProbe;
 use App\Tests\Fixtures\Scheduler\SchedulerExecutionProbe;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMessageLimitListener;
+use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Scheduler\Generator\MessageGenerator;
 use Symfony\Component\Scheduler\Messenger\SchedulerTransport;
+use Symfony\Component\Validator\Constraints\Callback;
 use Zhortein\MultiTenantBundle\Context\TenantContextInterface;
 
 final class SchedulerRedispatchTest extends KernelTestCase
 {
     private const QUEUE_NAME = 'scheduler_persistent';
 
-    public function testSchedulerWorkerPersistsBeforeApplicationWorkerHandles(): void
+    public static function outcomes(): iterable
+    {
+        yield 'success' => [false];
+        yield 'handler exception' => [true];
+    }
+
+    #[DataProvider('outcomes')]
+    public function testSchedulerWorkerPersistsBeforeApplicationWorkerHandles(bool $failure): void
     {
         self::bootKernel();
         $container = self::getContainer();
@@ -44,6 +56,14 @@ final class SchedulerRedispatchTest extends KernelTestCase
         self::assertInstanceOf(Schedule::class, $schedule);
         $probe = $container->get(SchedulerExecutionProbe::class);
         self::assertInstanceOf(SchedulerExecutionProbe::class, $probe);
+        $probe->failOnHandle = $failure;
+        $middleware = $container->get(MiddlewareExecutionProbe::class);
+        $validator = $container->get('validator');
+        foreach ([RedispatchMessage::class, GlobalHealthCheckMessage::class] as $class) {
+            $validator->getMetadataFor($class)->addConstraint(new Callback(static function (object $message) use ($middleware): void {
+                $middleware->record('validation', $message);
+            }));
+        }
 
         $clock = new MockClock('2026-09-04 12:00:00 UTC');
         $generator = new MessageGenerator($schedule, 'health_check', $clock);
@@ -55,10 +75,28 @@ final class SchedulerRedispatchTest extends KernelTestCase
         self::assertSame(1, $this->queuedMessages($connection));
         self::assertNull($context->getTenant());
 
-        self::assertSame([], $this->runOne($persistentTransport, $bus));
+        self::assertSame([
+            ['validation', RedispatchMessage::class, null],
+            ['before', RedispatchMessage::class, null],
+            ['validation', GlobalHealthCheckMessage::class, null],
+            ['before', GlobalHealthCheckMessage::class, null],
+            ['after', GlobalHealthCheckMessage::class, null],
+            ['after', RedispatchMessage::class, null],
+        ], $middleware->events);
+
+        $failures = $this->runOne($persistentTransport, $bus);
+        self::assertCount($failure ? 1 : 0, $failures);
+        if ($failure) {
+            self::assertStringContainsString('Controlled Scheduler application-handler failure.', $failures[0]->getMessage());
+        }
         self::assertSame(1, $probe->handledCount());
         self::assertSame(0, $this->queuedMessages($connection));
         self::assertNull($context->getTenant());
+        self::assertSame([
+            ['validation', GlobalHealthCheckMessage::class, null],
+            ['before', GlobalHealthCheckMessage::class, null],
+            ['after', GlobalHealthCheckMessage::class, null],
+        ], array_slice($middleware->events, 6));
     }
 
     /** @return list<\Throwable> */
