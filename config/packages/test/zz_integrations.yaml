@@ -2,6 +2,11 @@ framework:
     mailer:
         dsn: 'null://null'
     messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - validation
+                    - App\Tests\Fixtures\Messenger\MiddlewareExecutionProbe
         transports:
             async: 'in-memory://'
             notifications: 'in-memory://'

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0471244c90598fa27179c1d7a3897a5c",
+    "content-hash": "a1d9572acf6e94a50d1b7ee1228924e2",
     "packages": [
         {
             "name": "composer/semver",
@@ -8264,16 +8264,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.9",
+            "version": "v1.0.0-rc.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "9af00b6903803b627dd5b08119bcb5ab49d7a713"
+                "reference": "57856fc60579c8ece035b3160aa2c213e642a834"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/9af00b6903803b627dd5b08119bcb5ab49d7a713",
-                "reference": "9af00b6903803b627dd5b08119bcb5ab49d7a713",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/57856fc60579c8ece035b3160aa2c213e642a834",
+                "reference": "57856fc60579c8ece035b3160aa2c213e642a834",
                 "shasum": ""
             },
             "require": {
@@ -8318,6 +8318,7 @@
                 "symfony/phpunit-bridge": "^7.4 || ^8.0",
                 "symfony/scheduler": "^7.4 || ^8.0",
                 "symfony/twig-bundle": "^7.4 || ^8.0",
+                "symfony/validator": "^7.4 || ^8.0",
                 "symfony/yaml": "^7.4 || ^8.0"
             },
             "suggest": {
@@ -8379,7 +8380,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-09-04T15:38:33+00:00"
+            "time": "2026-09-05T08:30:15+00:00"
         }
     ],
     "packages-dev": [
