@@ -10,7 +10,7 @@ From a complete checkout:
 
 ```console
 make build
-make start
+make storage-start
 make install
 make migrate
 ```
@@ -36,9 +36,18 @@ The `quality` target creates and migrates the isolated `app_test` PostgreSQL
 database, validates Doctrine mappings and schema synchronization, and runs
 PHPUnit with the same database URL used by CI. It is safe to run repeatedly.
 
-PHPStan and PHP-CS-Fixer are not declared development dependencies in this
-application. Targets for undeclared tools must not be advertised as working
-checks.
+`make storage-start` generates local TLS, starts the private MinIO overlay and
+provisions synthetic accounts. `make storage-status` checks its state,
+`make storage-test` runs the mandatory real object-storage tests, and
+`make storage-stop` stops the local stack while preserving named data volumes.
+`make start` remains available for a separately configured external provider.
+
+The quality target also runs `make phpstan`, `make cs-check` and
+`make composer-check`. PHPStan is maximal with 194 independently measured
+pre-existing diagnostics recorded in a baseline; formatting covers the new RC11
+PHP surface. See [object-storage validation](object-storage.md#quality-and-database-matrix)
+for the exact scope and the PostgreSQL 16/18 recipe. Development container
+compilation uses 256 MiB; PHPUnit explicitly has 512 MiB available.
 
 ## Cleanup and data deletion
 

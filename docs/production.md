@@ -3,6 +3,14 @@
 Symfony Docker provides Docker images, and a Docker Compose definition optimized for production usage.
 In this tutorial, we will learn how to deploy our Symfony application on a single server using Docker Compose.
 
+The RC11 generic object-storage services take their endpoints, buckets,
+credentials and immutable tenant namespace map from the environment. Follow the
+[external provider configuration](object-storage.md#external-provider-configuration).
+`compose.storage.yaml` is local demonstration infrastructure and must not be
+included in production. Base/production PHP has no dependency on MinIO, and the
+production container compilation is tested without network access. No storage
+deployment or automatic historical-object migration is performed by this demo.
+
 ## Preparing a Server
 
 To deploy your application in production, you need a server.

@@ -8,7 +8,7 @@ The bundle separately validates Symfony 8.1 on PHP 8.5 with both shared-database
 
 ## Release-candidate validation
 
-The demo requires the exact `1.0.0-rc.10` bundle release candidate and `composer.lock` records the tagged source commit `57856fc60579c8ece035b3160aa2c213e642a834`. The committed lock file is the reproducibility boundary: ordinary installations must run `composer install` and must not resolve a development branch or a future stable version implicitly.
+The demo requires the exact `1.0.0-rc.11` bundle release candidate and `composer.lock` records the tagged source and dist commit `fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94`. The committed lock file is the reproducibility boundary: ordinary installations must run `composer install` and must not resolve a development branch or a future stable version implicitly.
 
 Dependabot must ignore `zhortein/multi-tenant-bundle` throughout this release-candidate validation period. Bundle upgrades are deliberate compatibility changes: Dependabot must not replace the exact RC constraint with `dev-develop`, another pre-release, or any other version. Remove the ignore rule only in the same reviewed change that adopts an approved bundle release according to this policy.
 
@@ -39,9 +39,14 @@ If a Dependabot pull request is exceptionally merged directly into `main`, synch
 3. Merge the latest `main` into that branch without rewriting either shared branch.
 4. Resolve conflicts by preserving the reviewed dependency constraints and lock file from the Dependabot change, then run the complete required CI again.
 5. Open a pull request from the synchronization branch to `develop`, merge it only when all required checks are green, and safely delete the merged synchronization branch.
-# RC10 validation target
+# RC11 validation target
 
-The fail-closed consumer target is PHP 8.5.9, Symfony Messenger and Scheduler 8.1.5, Doctrine Messenger 8.1.4, Doctrine ORM 3.6.8, DBAL 4.4.4, DoctrineBundle 3.3.1, DoctrineMigrationsBundle 4.0.1, and PostgreSQL 16 through 18. The current published demo graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC10 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed.
+The bundle's fail-closed consumer target includes PHP 8.5.9, Symfony Messenger and Scheduler 8.1.5, Doctrine Messenger 8.1.4, Doctrine ORM 3.6.8, DBAL 4.4.4, DoctrineBundle 3.3.1, DoctrineMigrationsBundle 4.0.1, and PostgreSQL 16 through 18. The current published demo graph remains Symfony 7.4 until its separately reviewed Symfony 8.1 migration is complete. The exact RC11 release is installed from Packagist and recorded in `composer.lock`; machine-specific Composer repositories must never be committed. PostgreSQL 18 is a tested upper boundary, never a production minimum.
+
+The [object-storage consumer proof](object-storage.md) documents RC11 provenance,
+explicit optional dependencies, the real MinIO matrix, and the inherited static
+analysis baseline. The existing file API and Messenger/Scheduler contracts remain
+covered alongside the new opt-in generic API.
 
 This demo uses one shared database and manages its application schema through
 `doctrine:migrations:migrate`; it does not declare per-tenant migration paths or

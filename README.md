@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml)
 
-A fail-closed reference consumer of the **Zhortein Multi-Tenant Bundle**, validated with PHP 8.5.9 and PostgreSQL 18.
+A fail-closed reference consumer of **Zhortein Multi-Tenant Bundle RC11**, validated with PHP 8.5.9 and PostgreSQL 16 and 18.
 
 ## 🏢 Overview
 
@@ -29,17 +29,20 @@ This application showcases how to implement multi-tenancy in a Symfony applicati
 - **PostgreSQL 18** with Doctrine ORM
 - **Bootstrap 5** responsive UI
 - **Docker containerization**
-- **PHPStan Level Max** compliance
+- **PHPStan Level Max** regression gate with a documented inherited baseline
+- **Private tenant-aware object storage** with real MinIO integration proofs
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Docker Engine with Docker Compose
-- PostgreSQL 18 is provided by the project stack; PHP and Composer run inside the application container.
+- PostgreSQL 18 is the local default; PostgreSQL 16 is also tested and supported. PHP and Composer run inside the application container.
 
 See the compatibility and bundle update policy in docs/compatibility.md for the supported dependency baseline and reproducible bundle update procedure.
 The executable Mailer, Messenger, Storage, and Cache consumer scenarios are
 documented in [docs/bundle-integrations.md](docs/bundle-integrations.md).
+The [RC11 object-storage proof](docs/object-storage.md) explains private MinIO,
+external provider configuration, reference persistence and authorized temporary URLs.
 
 ### Installation
 
@@ -52,7 +55,7 @@ cd multi-tenant-demo
 2. **Build and start the Docker environment:**
 ```bash
 make build
-make start
+make storage-start
 ```
 
 3. **Restore the locked dependencies:**
@@ -272,8 +275,10 @@ database, validates Doctrine mappings and schema synchronization, and runs the
 complete PHPUnit suite against that database. The same commands run for pull
 requests and pushes to `main` and `develop`.
 
-PHPStan and PHP-CS-Fixer are not currently declared by this application and are
-therefore not presented as effective local checks.
+`make quality` also runs maximum-level PHPStan against the measured pre-RC11
+baseline, PHP-CS-Fixer on the new storage integration, and strict Composer
+validation/audit. Start the local object store with `make storage-start` first;
+the MinIO integration tests never skip.
 
 ## 🌐 API Endpoints
 
@@ -374,7 +379,8 @@ allow the Scheduler Worker to handle it because Scheduler messages carry a
 
 Bundle release validation uses the immutable public package from Packagist. Do
 not add a Composer `path`, VCS, fork, or branch repository to this project. The
-committed dependency and lock file use exactly published RC10.
+committed dependency and lock file use exactly published RC11 at
+`fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94`.
 
 The default Messenger bus explicitly enables `validation`. Integration tests
 combine it with an application middleware witness and the bundle's automatic

@@ -1,0 +1,60 @@
+# Local-only S3-compatible infrastructure. Explicitly opt in with make storage-start.
+services:
+  php:
+    volumes:
+      - ./var/object-storage/tls:/object-storage-tls:ro
+    environment:
+      OBJECT_ENDPOINT: https://object-storage-internal:9000
+      OBJECT_SIGNING_ENDPOINT: https://object-storage-download:9000
+      OBJECT_CA_BUNDLE: /object-storage-tls/public.crt
+      OBJECT_BUCKET_SHARED_V1: ${OBJECT_BUCKET_SHARED_V1:-demo-shared-v1}
+      OBJECT_BUCKET_SHARED_V2: ${OBJECT_BUCKET_SHARED_V2:-demo-shared-v2}
+      OBJECT_BUCKET_DEDICATED: ${OBJECT_BUCKET_DEDICATED:-demo-dedicated-v1}
+      OBJECT_ACCESS_KEY: ${OBJECT_ACCESS_KEY:-demo-storage-consumer}
+      OBJECT_SECRET_KEY: ${OBJECT_SECRET_KEY:-demo-storage-consumer-synthetic-password}
+      OBJECT_ROTATED_ACCESS_KEY: ${OBJECT_ROTATED_ACCESS_KEY:-demo-storage-rotated}
+      OBJECT_ROTATED_SECRET_KEY: ${OBJECT_ROTATED_SECRET_KEY:-demo-storage-rotated-synthetic-password}
+      OBJECT_NAMESPACES: '{"${OBJECT_DEDICATED_TENANT_ID:-1}":"${OBJECT_NAMESPACE_A:-e5b9c803a1274802f0b895f8a57d0cb733c7d4631ad580a802a9545fde4b05bb}","${OBJECT_TENANT_B_ID:-2}":"${OBJECT_NAMESPACE_B:-b3f72a985240c8f6da84ef725f7b3090ddaf41dc685f224876eac5b2960ce39a}"}'
+      OBJECT_PROVIDER_OVERRIDES: '{"${OBJECT_DEDICATED_TENANT_ID:-1}":"dedicated"}'
+      OBJECT_DEDICATED_TENANT_ID: ${OBJECT_DEDICATED_TENANT_ID:-1}
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /data --certs-dir /tls --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-demo-storage-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-demo-storage-admin-synthetic-password}
+      MINIO_BROWSER: "off"
+    volumes:
+      - object_storage_data:/data
+      - ./var/object-storage/tls:/tls:ro
+    networks:
+      default:
+        aliases: [object-storage-internal, object-storage-download]
+    healthcheck:
+      test: [CMD, curl, --cacert, /tls/public.crt, --fail, --silent, https://localhost:9000/minio/health/ready]
+      interval: 1s
+      timeout: 3s
+      retries: 40
+
+  storage-provision:
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    profiles: [storage-tools]
+    entrypoint: [/bin/sh, /scripts/provision-storage.sh]
+    environment:
+      OBJECT_ENDPOINT: https://object-storage-internal:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-demo-storage-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-demo-storage-admin-synthetic-password}
+      OBJECT_BUCKET_SHARED_V1: ${OBJECT_BUCKET_SHARED_V1:-demo-shared-v1}
+      OBJECT_BUCKET_SHARED_V2: ${OBJECT_BUCKET_SHARED_V2:-demo-shared-v2}
+      OBJECT_BUCKET_DEDICATED: ${OBJECT_BUCKET_DEDICATED:-demo-dedicated-v1}
+      OBJECT_ACCESS_KEY: ${OBJECT_ACCESS_KEY:-demo-storage-consumer}
+      OBJECT_SECRET_KEY: ${OBJECT_SECRET_KEY:-demo-storage-consumer-synthetic-password}
+      OBJECT_ROTATED_ACCESS_KEY: ${OBJECT_ROTATED_ACCESS_KEY:-demo-storage-rotated}
+      OBJECT_ROTATED_SECRET_KEY: ${OBJECT_ROTATED_SECRET_KEY:-demo-storage-rotated-synthetic-password}
+    volumes:
+      - ./tools/provision-storage.sh:/scripts/provision-storage.sh:ro
+      - ./var/object-storage/tls/public.crt:/root/.mc/certs/CAs/demo.crt:ro
+
+volumes:
+  object_storage_data:

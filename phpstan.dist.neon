@@ -1,0 +1,13 @@
+# Inherited diagnostics measured on 91a870bd0a4775ada4bdb0017a3e04b9aa66f503.
+# No new object-storage diagnostic is included in this baseline.
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+        - tools
+    tmpDir: var/phpstan
+    reportUnmatchedIgnoredErrors: true

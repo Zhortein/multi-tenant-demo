@@ -16,9 +16,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests:
-    name: Tests
+  integration:
+    name: Tests PostgreSQL ${{ matrix.postgres }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ['16', '18']
+    env:
+      SERVER_NAME: localhost
+      POSTGRES_VERSION: ${{ matrix.postgres }}
+      COMPOSE_FILE: compose.yaml:compose.override.yaml:compose.storage.yaml:compose.test.yaml
+      TEST_DATABASE_BASE_URL: postgresql://app:!ChangeMe!@database:5432/app?serverVersion=${{ matrix.postgres }}&charset=utf8
     steps:
       -
         name: Checkout
@@ -40,18 +49,27 @@ jobs:
             *.cache-from=type=gha,scope=refs/heads/main
             *.cache-to=type=gha,scope=${{github.ref}},mode=max
       -
-        name: Start services
+        name: Prepare local storage TLS
+        run: make storage-certificates
+      -
+        name: Start services including real pinned MinIO
         run: docker compose up --wait --no-build
       -
+        name: Provision private local buckets and synthetic accounts
+        run: docker compose run --rm --no-deps storage-provision
+      -
+        name: Validate Composer and audit the locked graph
+        run: |
+          make composer-check
+      -
         name: Check HTTP reachability
-        run: curl -v --fail-with-body http://localhost
+        run: curl --silent --show-error --fail --output /dev/null http://localhost
       -
         name: Check HTTPS reachability
-        if: false # Remove this line when the homepage will be configured, or change the path to check
-        run: curl -v --insecure --fail-with-body https://localhost
+        run: curl --silent --show-error --insecure --fail --output /dev/null https://localhost
       -
         name: Check Mercure reachability
-        run: curl -vI --insecure --fail-with-body https://localhost/.well-known/mercure?topic=test
+        run: curl --silent --show-error --head --insecure --fail --output /dev/null 'https://localhost/.well-known/mercure?topic=test'
       -
         name: Prepare test database
         run: make test-database
@@ -62,18 +80,53 @@ jobs:
         name: Validate Doctrine schema
         run: make schema-validate
       -
-        name: Verify persistent Scheduler redispatch
-        run: >-
-          docker compose exec -T
-          -e 'DATABASE_URL=postgresql://app:!ChangeMe!@database:5432/app?serverVersion=18&charset=utf8'
-          php php bin/phpunit tests/Integration/SchedulerRedispatchTest.php
+        name: Verify object storage without skips
+        run: make storage-test
       -
-        name: Run PHPUnit
-        run: make test
+        name: Verify Scheduler, Messenger and persistent lifecycle
+        run: |
+          docker compose exec -T -e "DATABASE_URL=$TEST_DATABASE_BASE_URL" php php -d memory_limit=512M bin/phpunit \
+            tests/Integration/SchedulerRedispatchTest.php \
+            tests/Integration/MessengerNativeRoutingStrategyTest.php \
+            tests/Integration/PersistentTenantLifecycleTest.php
       -
-        name: Preserve service logs on failure
+        name: Run PHPUnit, maximum PHPStan and formatting checks
+        run: make test phpstan cs-check
+      -
+        name: Lint application configuration and restore assets
+        run: |
+          docker compose exec -T php php bin/console lint:yaml config --parse-tags
+          docker compose exec -T php php bin/console lint:twig templates
+          docker compose exec -T php php bin/console lint:xliff translations
+          docker compose exec -T php php bin/console lint:container --resolve-env-vars
+          docker compose exec -T php php -r 'foreach (["composer.json", "composer.lock", "symfony.lock", "assets/controllers.json"] as $path) { json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR); }'
+          docker compose exec -T php composer run-script post-install-cmd
+          git diff --exit-code -- composer.json composer.lock symfony.lock
+          git diff --check
+      -
+        name: Build external-provider consumer from the lock
+        if: matrix.postgres == '18'
+        run: |
+          docker build --target frankenphp_prod --tag demo-external:ci .
+          docker run --rm --network none --entrypoint php demo-external:ci bin/console cache:clear --env=prod
+      -
+        name: Preserve service state on failure without backend diagnostics
         if: failure()
-        run: docker compose logs --no-color --timestamps
+        run: docker compose ps --format '{{.Name}} {{.State}} {{.Health}}'
+      -
+        name: Remove only this disposable CI project's resources
+        if: always()
+        run: docker compose down --volumes --remove-orphans
+  tests:
+    name: Tests
+    needs: integration
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both real-storage database cells
+        env:
+          RESULT: ${{ needs.integration.result }}
+        run: test "$RESULT" = success
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest

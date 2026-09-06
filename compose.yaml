@@ -10,6 +10,19 @@ services:
       MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
       MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}/.well-known/mercure}
       MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      # External object storage is injected independently of local MinIO.
+      OBJECT_ENDPOINT:
+      OBJECT_SIGNING_ENDPOINT:
+      OBJECT_BUCKET_SHARED_V1:
+      OBJECT_BUCKET_SHARED_V2:
+      OBJECT_BUCKET_DEDICATED:
+      OBJECT_REGION:
+      OBJECT_ACCESS_KEY:
+      OBJECT_SECRET_KEY:
+      OBJECT_CA_BUNDLE:
+      OBJECT_NAMESPACES:
+      OBJECT_PROVIDER_OVERRIDES:
+      OBJECT_DEDICATED_TENANT_ID:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
