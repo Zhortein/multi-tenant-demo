@@ -1,0 +1,5 @@
+# Test-only database layout works with both PostgreSQL 16 and 18.
+services:
+  database:
+    environment:
+      PGDATA: /var/lib/postgresql/demo-test-data

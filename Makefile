@@ -5,6 +5,9 @@ DOCKER_COMPOSE = docker compose
 PHP_CONTAINER = php
 DATABASE_CONTAINER = database
 TEST_DATABASE_BASE_URL ?= postgresql://app:!ChangeMe!@database:5432/app?serverVersion=18&charset=utf8
+PHP_TEST_OPTIONS = -d memory_limit=512M -d zend.exception_ignore_args=1
+STORAGE_COMPOSE = $(DOCKER_COMPOSE) -f compose.yaml -f compose.override.yaml -f compose.storage.yaml
+PHP_CS_FIXER_IMAGE = ghcr.io/php-cs-fixer/php-cs-fixer:3.95.24-php8.3@sha256:7033fc432deb3dc29531da39a1fbd09c10bb0e7d61b33ce354b7a25f96486087
 
 # Colors for output
 GREEN = \033[0;32m
@@ -67,9 +70,39 @@ schema-validate: ## Validate Doctrine mappings against the test database
 
 test: ## Run tests against the isolated test database
 	@echo "$(GREEN)Running tests...$(NC)"
-	$(DOCKER_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php bin/phpunit
+	$(DOCKER_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php $(PHP_TEST_OPTIONS) bin/phpunit
 
-quality: test-database fixtures schema-validate test ## Run all currently declared quality checks
+.PHONY: storage-certificates storage-start storage-status storage-test storage-stop
+
+storage-certificates: ## Generate local TLS material without printing private keys
+	$(STORAGE_COMPOSE) run --rm --no-deps --entrypoint php -v "$(CURDIR)/var:/app/var" $(PHP_CONTAINER) tools/storage-certificates.php
+
+storage-start: storage-certificates ## Start local private MinIO and the application
+	$(STORAGE_COMPOSE) up -d --wait --wait-timeout 60 minio database $(PHP_CONTAINER)
+	$(STORAGE_COMPOSE) run --rm --no-deps storage-provision
+
+storage-status: ## Show local object storage readiness
+	$(STORAGE_COMPOSE) ps minio
+
+storage-test: ## Prove RC11 object storage against real MinIO (no skips)
+	$(STORAGE_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php $(PHP_TEST_OPTIONS) bin/phpunit tests/Integration/ObjectStorageTest.php tests/Integration/ObjectStorageMessengerTest.php
+
+storage-stop: ## Stop the local stack and preserve its data volumes
+	$(STORAGE_COMPOSE) down
+
+.PHONY: phpstan cs-check composer-check
+
+composer-check: ## Accept only the documented exact-RC warning and audit the lock
+	$(DOCKER_COMPOSE) exec -T $(PHP_CONTAINER) sh tools/validate-composer.sh
+	$(DOCKER_COMPOSE) exec -T $(PHP_CONTAINER) composer audit --locked
+
+phpstan: ## Run maximum-level PHPStan with the measured pre-RC11 baseline
+	$(DOCKER_COMPOSE) exec -T $(PHP_CONTAINER) vendor/bin/phpstan analyse --no-progress --memory-limit=512M
+
+cs-check: ## Check formatting of the RC11 integration surface
+	docker run --rm --network none -v "$(CURDIR):/code:ro" $(PHP_CS_FIXER_IMAGE) fix --dry-run --diff --using-cache=no
+
+quality: test-database fixtures schema-validate test phpstan cs-check composer-check ## Run all declared quality checks
 
 clean: ## Stop and remove project containers without deleting data
 	@echo "$(YELLOW)Stopping and removing project containers...$(NC)"

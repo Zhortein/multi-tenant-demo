@@ -1,0 +1,15 @@
+doctrine:
+    dbal:
+        # SQL parameters contain serialized references and Messenger payloads.
+        logging: false
+        profiling: false
+
+framework:
+    messenger:
+        transports:
+            object_storage_probe:
+                dsn: 'doctrine://default?queue_name=object_storage_probe&auto_setup=false'
+                retry_strategy:
+                    max_retries: 0
+        routing:
+            App\Tests\Fixtures\ObjectStorage\ReadStoredObjectMessage: object_storage_probe

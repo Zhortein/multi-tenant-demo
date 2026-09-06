@@ -10,8 +10,7 @@ Start the Docker Compose environment, restore `composer.lock`, and run:
 
 ```shell
 docker compose config --quiet
-docker compose exec -T php composer validate
-docker compose exec -T php composer audit --locked
+make composer-check
 make quality
 ```
 
@@ -20,12 +19,19 @@ strict mode reports it as a nonzero exit even when the schema and lock are
 valid. Keep the reviewed exact version instead of relaxing it to silence that
 warning. Dependency audit remains required.
 
+RC11 additionally enables the generic object-storage API through explicitly
+configured S3-compatible services. Start `make storage-start` before the complete
+suite; [the storage proof](object-storage.md) describes the real MinIO scenarios,
+reference persistence, private temporary URLs and PostgreSQL 16/18 matrix.
+`make composer-check` matches the one documented warning exactly and rejects
+all other Composer warnings.
+
 The test environment replaces the ordinary async and notification Messenger
 transports with in-memory transports and the Mailer transport with `null://null`.
 The Scheduler destination remains a persistent Doctrine transport. Local storage
 uses the configured directory under `var/`; each test removes the files that it
 creates. PostgreSQL remains the real Doctrine database and the cache is the real
-`cache.app` service explicitly decorated by bundle RC10. The application also
+`cache.app` service explicitly decorated by bundle RC11. The application also
 defines a separate undecorated `cache.global` pool for explicitly global data.
 
 RC10 treats every main HTTP request, Messenger delivery, Scheduler execution,

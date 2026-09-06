@@ -1,0 +1,112 @@
+# All physical addressing comes from server-owned environment configuration.
+parameters:
+    env(OBJECT_ENDPOINT): 'https://object-storage.invalid'
+    env(OBJECT_SIGNING_ENDPOINT): 'https://object-storage.invalid'
+    env(OBJECT_BUCKET_SHARED_V1): 'demo-shared-v1'
+    env(OBJECT_BUCKET_SHARED_V2): 'demo-shared-v2'
+    env(OBJECT_BUCKET_DEDICATED): 'demo-dedicated-v1'
+    env(OBJECT_REGION): 'us-east-1'
+    env(OBJECT_ACCESS_KEY): ''
+    env(OBJECT_SECRET_KEY): ''
+    env(OBJECT_CA_BUNDLE): ''
+    env(OBJECT_NAMESPACES): '{}'
+    env(OBJECT_PROVIDER_OVERRIDES): '{}'
+    env(OBJECT_DEDICATED_TENANT_ID): 'unconfigured'
+    object_storage.system_ca: null
+
+services:
+    app.object_storage.configuration:
+        abstract: true
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\S3LocationConfiguration
+        arguments:
+            $endpoint: '%env(OBJECT_ENDPOINT)%'
+            $root: 'demo-objects'
+            $region: '%env(OBJECT_REGION)%'
+            $signingEndpoint: '%env(OBJECT_SIGNING_ENDPOINT)%'
+            $maxTtl: 60
+
+    app.object_storage.shared_v1.configuration:
+        parent: app.object_storage.configuration
+        arguments:
+            $bucket: '%env(OBJECT_BUCKET_SHARED_V1)%'
+
+    app.object_storage.shared_v2.configuration:
+        parent: app.object_storage.configuration
+        arguments:
+            $bucket: '%env(OBJECT_BUCKET_SHARED_V2)%'
+
+    app.object_storage.dedicated_v1.configuration:
+        parent: app.object_storage.configuration
+        arguments:
+            $bucket: '%env(OBJECT_BUCKET_DEDICATED)%'
+
+    app.object_storage.backend:
+        abstract: true
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        factory: ['Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\S3CompatibleStorageFactory', create]
+        arguments:
+            $accessKey: '%env(OBJECT_ACCESS_KEY)%'
+            $secretKey: '%env(OBJECT_SECRET_KEY)%'
+            $temporaryUrls: true
+            $caBundle: '%env(default:object_storage.system_ca:OBJECT_CA_BUNDLE)%'
+
+    app.object_storage.shared_v1:
+        parent: app.object_storage.backend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        arguments:
+            $config: '@app.object_storage.shared_v1.configuration'
+
+    app.object_storage.shared_v2:
+        parent: app.object_storage.backend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        arguments:
+            $config: '@app.object_storage.shared_v2.configuration'
+
+    app.object_storage.dedicated_v1:
+        parent: app.object_storage.backend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        arguments:
+            $config: '@app.object_storage.dedicated_v1.configuration'
+
+    app.object_storage.namespaces:
+        class: Zhortein\MultiTenantBundle\ObjectStorage\ConfiguredTenantStorageNamespaceResolver
+        arguments:
+            $namespaces: '%env(json:OBJECT_NAMESPACES)%'
+
+    app.object_storage.selector:
+        class: Zhortein\MultiTenantBundle\ObjectStorage\ConfiguredTenantStorageProviderSelector
+        arguments:
+            $defaultProvider: shared
+            $tenantOverrides: '%env(json:OBJECT_PROVIDER_OVERRIDES)%'
+
+zhortein_multi_tenant:
+    object_storage:
+        enabled: true
+        default_provider: shared
+        namespace_resolver: app.object_storage.namespaces
+        provider_selector: app.object_storage.selector
+        providers:
+            shared:
+                active_location: shared_v1
+            dedicated:
+                active_location: dedicated_v1
+        locations:
+            shared_v1:
+                backend: app.object_storage.shared_v1
+                binding: app.object_storage.shared_v1
+                allowed_tenants: ['*']
+                temporary_urls: true
+            shared_v2:
+                backend: app.object_storage.shared_v2
+                binding: app.object_storage.shared_v2
+                allowed_tenants: ['*']
+                temporary_urls: true
+            dedicated_v1:
+                backend: app.object_storage.dedicated_v1
+                binding: app.object_storage.dedicated_v1
+                allowed_tenants: ['%env(OBJECT_DEDICATED_TENANT_ID)%']
+                temporary_urls: true
+        temporary_urls:
+            enabled: true
+            default_ttl: 10
+            max_ttl: 60

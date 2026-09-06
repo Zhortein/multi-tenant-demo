@@ -15,3 +15,24 @@ services:
         public: true
 
     App\Tests\Fixtures\Scheduler\SchedulerExecutionProbeHandler: ~
+
+    App\Tests\Fixtures\ObjectStorage\StorageWorkerProbe:
+        public: true
+
+    app.object_storage.probe.shared_v1:
+        class: App\Tests\Fixtures\ObjectStorage\StorageIoProbe
+        decorates: app.object_storage.shared_v1
+        arguments: ['@.inner']
+        public: true
+
+    app.object_storage.probe.shared_v2:
+        class: App\Tests\Fixtures\ObjectStorage\StorageIoProbe
+        decorates: app.object_storage.shared_v2
+        arguments: ['@.inner']
+        public: true
+
+    app.object_storage.probe.dedicated_v1:
+        class: App\Tests\Fixtures\ObjectStorage\StorageIoProbe
+        decorates: app.object_storage.dedicated_v1
+        arguments: ['@.inner']
+        public: true

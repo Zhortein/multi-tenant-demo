@@ -1,0 +1,721 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot call method getName\(\) on Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^Cannot call method getSlug\(\) on Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^Parameter \#2 \$testEmail of method App\\Command\\TestTenantFeaturesCommand\:\:testNotificationFunctionality\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^Part \$tenant\-\>getName\(\) \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^Part \$tenantSlug \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 2
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^Part \$this\-\>tenantContext\-\>getTenant\(\)\-\>getName\(\) \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Command/TestTenantFeaturesCommand.php
+
+		-
+			message: '#^Cannot call method getName\(\) on Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Cannot call method getSlug\(\) on Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 6
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Controller\\DocumentController\:\:getNotificationDataForNavigation\(\) expects App\\Entity\\Tenant, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Parameter \#2 \$token of method Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController\:\:isCsrfTokenValid\(\) expects string\|null, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Parameter \$description of method App\\Service\\TenantStorageService\:\:uploadFile\(\) expects string\|null, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Parameter \$name of method App\\Service\\TenantStorageService\:\:uploadFile\(\) expects string, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Part \$tenant\-\>getName\(\) \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Controller/DocumentController.php
+
+		-
+			message: '#^Method App\\Controller\\EmailTestController\:\:sendAllTestEmails\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Method App\\Controller\\EmailTestController\:\:sendNotificationTestEmail\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Method App\\Controller\\EmailTestController\:\:sendSimpleTestEmail\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Method App\\Controller\\EmailTestController\:\:sendTemplatedTestEmail\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Method App\\Controller\\EmailTestController\:\:sendWelcomeTestEmail\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \#1 \$string of function ucfirst expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$content of method App\\Service\\TenantMailerService\:\:sendSimpleEmail\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$message of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$recipientEmail of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string\|null, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$subject of method App\\Service\\TenantMailerService\:\:sendSimpleEmail\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$subject of method App\\Service\\TenantMailerService\:\:sendTemplatedEmail\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$title of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$type of method App\\Service\\TenantMailerService\:\:sendNotificationEmail\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$type of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Parameter \$userName of method App\\Service\\TenantMailerService\:\:sendWelcomeEmail\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Property App\\Controller\\EmailTestController\:\:\$entityManager is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/EmailTestController.php
+
+		-
+			message: '#^Cannot call method getName\(\) on Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Cannot call method getSlug\(\) on Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 8
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Controller\\NotificationController\:\:getNotificationDataForNavigation\(\) expects App\\Entity\\Tenant, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \#2 \$token of method Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController\:\:isCsrfTokenValid\(\) expects string\|null, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \$message of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \$recipientEmail of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string\|null, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \$recipientEmail of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string\|null, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \$recipientEmail of method App\\Service\\TenantNotificationService\:\:sendTestNotification\(\) expects string\|null, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \$title of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string, float\|int\<min, \-1\>\|int\<1, max\>\|string\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \$type of method App\\Service\\TenantNotificationService\:\:createNotification\(\) expects string, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Part \$tenant\-\>getName\(\) \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 2
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \#1 \$string of function trim expects string, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 8
+			path: src/Controller/ProductController.php
+
+		-
+			message: '#^Parameter \#2 \$token of method Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController\:\:isCsrfTokenValid\(\) expects string\|null, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ProductController.php
+
+		-
+			message: '#^Property App\\Controller\\ProductController\:\:\$tenantContext is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/ProductController.php
+
+		-
+			message: '#^Parameter \#1 \$string of function trim expects string, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Controller/TenantController.php
+
+		-
+			message: '#^Parameter \#2 \$token of method Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController\:\:isCsrfTokenValid\(\) expects string\|null, bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TenantController.php
+
+		-
+			message: '#^Property App\\Entity\\Document\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Document.php
+
+		-
+			message: '#^Property App\\Entity\\Membership\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Membership.php
+
+		-
+			message: '#^Property App\\Entity\\Notification\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\Product\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Product.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Entity\\Document\:\:setTenant\(\) expects App\\Entity\\Tenant, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Tenant.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Entity\\Notification\:\:setTenant\(\) expects App\\Entity\\Tenant, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Tenant.php
+
+		-
+			message: '#^Property App\\Entity\\Tenant\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Tenant.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getRoles\(\) should return list\<string\> but returns non\-empty\-array\<int\<0, max\>, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getUserIdentifier\(\) should return non\-empty\-string but returns string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Class App\\Security\\TenantAccessVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/TenantAccessVoter.php
+
+		-
+			message: '#^Call to an undefined method Zhortein\\MultiTenantBundle\\Entity\\TenantInterface\:\:getName\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Service\\TenantMailerService\:\:getTenantBrandingContext\(\) expects App\\Entity\\Tenant, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Service\\TenantMailerService\:\:getTenantFromAddress\(\) expects App\\Entity\\Tenant, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \#1 \$tenant of method App\\Service\\TenantMailerService\:\:getTenantSubjectPrefix\(\) expects App\\Entity\\Tenant, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \#2 \$tenant of method App\\Service\\TenantMailerService\:\:wrapContentWithTenantBranding\(\) expects App\\Entity\\Tenant, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \$tenant of method App\\Service\\TenantMailerService\:\:sendTemplatedEmail\(\) expects App\\Entity\\Tenant\|null, Zhortein\\MultiTenantBundle\\Entity\\TenantInterface given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Service/TenantMailerService.php
+
+		-
+			message: '#^Parameter \#1 \$notificationId of class App\\Message\\SendNotificationMessage constructor expects int, int\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/TenantNotificationService.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Contracts\\Cache\\NamespacedPoolInterface\:\:deleteItem\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Contracts\\Cache\\NamespacedPoolInterface\:\:getItem\(\)\.$#'
+			identifier: method.notFound
+			count: 7
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Contracts\\Cache\\NamespacedPoolInterface\:\:save\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:delete\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:dispatch\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:exists\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getMetadataFor\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getPath\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:run\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:sendSimpleEmail\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:upload\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:withSubNamespace\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Cannot call method addConstraint\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Cannot call method get\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Cannot call method getItem\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Cannot call method isHit\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Cannot call method save\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Cannot call method set\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Method App\\Tests\\Integration\\BundlePublicIntegrationsTest\:\:notificationStatus\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Parameter \#1 \$filename of function file_get_contents expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 3
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Parameter \#1 \$kernel of class Symfony\\Bundle\\FrameworkBundle\\Console\\Application constructor expects Symfony\\Component\\HttpKernel\\KernelInterface, Symfony\\Component\\HttpKernel\\KernelInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Property App\\Tests\\Integration\\BundlePublicIntegrationsTest\:\:\$entityManager \(Doctrine\\ORM\\EntityManagerInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Property App\\Tests\\Integration\\BundlePublicIntegrationsTest\:\:\$tenantContext \(Zhortein\\MultiTenantBundle\\Context\\TenantContextInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Trying to invoke object but it might not be a callable\.$#'
+			identifier: callable.nonCallable
+			count: 1
+			path: tests/Integration/BundlePublicIntegrationsTest.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$events\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Integration/MessengerNativeRoutingStrategyTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:handledCount\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/MessengerNativeRoutingStrategyTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:reset\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/MessengerNativeRoutingStrategyTest.php
+
+		-
+			message: '#^Property App\\Tests\\Integration\\MessengerNativeRoutingStrategyTest\:\:\$bus \(Symfony\\Component\\Messenger\\MessageBusInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Integration/MessengerNativeRoutingStrategyTest.php
+
+		-
+			message: '#^Property App\\Tests\\Integration\\MessengerNativeRoutingStrategyTest\:\:\$tenantContext \(Zhortein\\MultiTenantBundle\\Context\\TenantContextInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Integration/MessengerNativeRoutingStrategyTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getItem\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Integration/PersistentTenantLifecycleTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:save\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/PersistentTenantLifecycleTest.php
+
+		-
+			message: '#^Cannot call method set\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Integration/PersistentTenantLifecycleTest.php
+
+		-
+			message: '#^Method App\\Tests\\Integration\\PersistentTenantLifecycleTest\:\:entityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns object\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Integration/PersistentTenantLifecycleTest.php
+
+		-
+			message: '#^Property App\\Tests\\Integration\\PersistentTenantLifecycleTest\:\:\$tenantContext \(Zhortein\\MultiTenantBundle\\Context\\TenantContextInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Integration/PersistentTenantLifecycleTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getMetadataFor\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:record\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Cannot call method addConstraint\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Method App\\Tests\\Integration\\SchedulerRedispatchTest\:\:outcomes\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Method App\\Tests\\Integration\\SchedulerRedispatchTest\:\:queuedMessages\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Method App\\Tests\\Integration\\SchedulerRedispatchTest\:\:runOne\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: tests/Integration/SchedulerRedispatchTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:clear\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getTenant\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:run\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:setTenant\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Method App\\Tests\\Isolation\\ProductIsolationTest\:\:em\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns object\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Method App\\Tests\\Isolation\\ProductIsolationTest\:\:runCommand\(\) has parameter \$input with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Property App\\Tests\\Isolation\\ProductIsolationTest\:\:\$entityManager \(Doctrine\\ORM\\EntityManagerInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Property App\\Tests\\Isolation\\ProductIsolationTest\:\:\$products \(App\\Repository\\ProductRepository\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Isolation/ProductIsolationTest.php
+
+		-
+			message: '#^Property App\\Tests\\Security\\TenantAuthorizationTest\:\:\$entityManager \(Doctrine\\ORM\\EntityManagerInterface\) does not accept object\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Security/TenantAuthorizationTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''Symfony\\\\Component\\\\Dotenv\\\\Dotenv'' and ''bootEnv'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/bootstrap.php

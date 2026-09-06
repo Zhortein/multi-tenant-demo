@@ -24,6 +24,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
 	&& rm -rf /var/lib/apt/lists/*
 
+# /app is the explicitly mounted consumer checkout, often owned by the host UID.
+RUN git config --system --add safe.directory /app
+
 RUN set -eux; \
 	install-php-extensions \
 		@composer \
