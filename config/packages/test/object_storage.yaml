@@ -13,3 +13,19 @@ framework:
                     max_retries: 0
         routing:
             App\Tests\Fixtures\ObjectStorage\ReadStoredObjectMessage: object_storage_probe
+
+# RC12 is explicitly enabled for the existing executable storage demonstration.
+# Production/default compilation keeps audit disabled and needs no audit key.
+services:
+    app.object_storage.audit_codec:
+        class: Zhortein\MultiTenantBundle\ObjectStorage\ObjectStorageAuditCodec
+        arguments:
+            $activeKey: current
+            $keys:
+                current: '%env(file:OBJECT_AUDIT_KEY_FILE)%'
+
+zhortein_multi_tenant:
+    object_storage:
+        audit:
+            enabled: true
+            codec: app.object_storage.audit_codec

@@ -3,10 +3,12 @@ services:
   php:
     volumes:
       - ./var/object-storage/tls:/object-storage-tls:ro
+      - ./var/object-storage/audit:/object-storage-audit:ro
     environment:
       OBJECT_ENDPOINT: https://object-storage-internal:9000
       OBJECT_SIGNING_ENDPOINT: https://object-storage-download:9000
       OBJECT_CA_BUNDLE: /object-storage-tls/public.crt
+      OBJECT_AUDIT_KEY_FILE: /object-storage-audit/current.key
       OBJECT_BUCKET_SHARED_V1: ${OBJECT_BUCKET_SHARED_V1:-demo-shared-v1}
       OBJECT_BUCKET_SHARED_V2: ${OBJECT_BUCKET_SHARED_V2:-demo-shared-v2}
       OBJECT_BUCKET_DEDICATED: ${OBJECT_BUCKET_DEDICATED:-demo-dedicated-v1}

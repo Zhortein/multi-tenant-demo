@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Fixtures\ObjectStorage;
 
+use Zhortein\MultiTenantBundle\ObjectStorage\AuditListingBackendInterface;
+use Zhortein\MultiTenantBundle\ObjectStorage\BackendIdentityObservation;
 use Zhortein\MultiTenantBundle\ObjectStorage\BackendObjectPage;
+use Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\AuditableFlysystemBackend;
 use Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend;
+use Zhortein\MultiTenantBundle\ObjectStorage\ObjectIdentityBackendInterface;
 use Zhortein\MultiTenantBundle\ObjectStorage\ObjectMetadata;
 use Zhortein\MultiTenantBundle\ObjectStorage\ObjectStorageBackendInterface;
 use Zhortein\MultiTenantBundle\ObjectStorage\ObjectStreamDestinationInterface;
@@ -16,12 +20,62 @@ use Zhortein\MultiTenantBundle\ObjectStorage\TemporaryObjectUrl;
 use Zhortein\MultiTenantBundle\ObjectStorage\TemporaryObjectUrlBackendInterface;
 
 /** Counts public adapter calls; never records keys, content, URLs or diagnostics. */
-final class StorageIoProbe implements ObjectStorageBackendInterface, StorageLocationBindingInterface, TemporaryObjectUrlBackendInterface
+final class StorageIoProbe implements ObjectStorageBackendInterface, StorageLocationBindingInterface, TemporaryObjectUrlBackendInterface, AuditListingBackendInterface, ObjectIdentityBackendInterface
 {
+    public static int $constructions = 0;
     public int $calls = 0;
+    public int $observations = 0;
+    /** @var ?\Closure(BackendObjectPage): BackendObjectPage Test-only fault after a real MinIO LIST. */
+    public ?\Closure $afterAuditList = null;
+    private ?string $fixtureEnvelope = null;
 
-    public function __construct(private readonly SigningFlysystemBackend $inner)
+    public function __construct(private readonly SigningFlysystemBackend|AuditableFlysystemBackend $inner)
     {
+        ++self::$constructions;
+    }
+
+    public function auditList(string $tenantPrefix, int $limit, ?string $afterKey = null): BackendObjectPage
+    {
+        ++$this->calls;
+        $page = $this->auditable()->auditList($tenantPrefix, $limit, $afterKey);
+
+        return null === $this->afterAuditList ? $page : ($this->afterAuditList)($page);
+    }
+
+    public function observeIdentity(string $qualifiedKey): BackendIdentityObservation
+    {
+        ++$this->calls;
+        ++$this->observations;
+
+        return $this->auditable()->observeIdentity($qualifiedKey);
+    }
+
+    public function writeWithIdentity(string $qualifiedKey, string $content, string $envelope): void
+    {
+        ++$this->calls;
+        $this->auditable()->writeWithIdentity($qualifiedKey, $content, $this->fixtureEnvelope ?? $envelope);
+    }
+
+    public function writeFromStreamWithIdentity(string $qualifiedKey, ObjectStreamSourceInterface $source, string $envelope): void
+    {
+        ++$this->calls;
+        $this->auditable()->writeFromStreamWithIdentity($qualifiedKey, $source, $envelope);
+    }
+
+    /** @param \Closure(): void $write Writes anomalous metadata to a newly allocated test object only. */
+    public function withFixtureEnvelope(#[\SensitiveParameter] string $envelope, \Closure $write): void
+    {
+        $this->fixtureEnvelope = $envelope;
+        try {
+            $write();
+        } finally {
+            $this->fixtureEnvelope = null;
+        }
+    }
+
+    private function auditable(): AuditableFlysystemBackend
+    {
+        return $this->inner instanceof AuditableFlysystemBackend ? $this->inner : throw new \LogicException('Audit fixture requires an auditable backend.');
     }
 
     public function identity(ObjectStorageBackendInterface $backend): PhysicalStorageIdentity

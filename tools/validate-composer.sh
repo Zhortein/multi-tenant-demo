@@ -10,7 +10,7 @@ expected=$(cat <<'TEXT'
 ./composer.json is valid, but with a few warnings
 See https://getcomposer.org/doc/04-schema.md for details on the schema
 # General warnings
-- require.zhortein/multi-tenant-bundle : exact version constraints (1.0.0-rc.11) should be avoided if the package follows semantic versioning
+- require.zhortein/multi-tenant-bundle : exact version constraints (1.0.0-rc.12) should be avoided if the package follows semantic versioning
 TEXT
 )
 if [ "$status" -eq 1 ] && [ "$output" = "$expected" ]; then

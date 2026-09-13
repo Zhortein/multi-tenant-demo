@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Existing application formatting is separate from this RC11 integration lot.
+// Existing application formatting is separate from the object-storage integration.
 $finder = (new PhpCsFixer\Finder())
     ->in([
         __DIR__.'/tests/Fixtures/ObjectStorage',
@@ -11,6 +11,7 @@ $finder = (new PhpCsFixer\Finder())
     ->append([
         __DIR__.'/tests/Integration/ObjectStorageTest.php',
         __DIR__.'/tests/Integration/ObjectStorageMessengerTest.php',
+        __DIR__.'/tests/Integration/ObjectStorageAuditTest.php',
         __FILE__,
     ])
 ;

@@ -1,18 +1,20 @@
-# RC11 object storage consumer proof
+# RC12 object storage and audit consumer proof
 
-This demo consumes exactly `zhortein/multi-tenant-bundle:1.0.0-rc.11` from
-Packagist. The [public prerelease](https://github.com/Zhortein/multi-tenant-bundle/releases/tag/v1.0.0-rc.11)
-and annotated tag `2eb5542dc9ab8ab2b41b060556a9e7649d6ba783` resolve to
-`fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94`. Both lock references match that commit.
-The downloaded dist ZIP has SHA-256
-`46bcf70b6280f3f0b5e117dda7f951f5d466c716731de9161d14731ce136de2e`;
-all 493 distributed files were checked against public Git blob hashes.
+This demo consumes exactly `zhortein/multi-tenant-bundle:1.0.0-rc.12` from
+Packagist. The [public prerelease](https://github.com/Zhortein/multi-tenant-bundle/releases/tag/v1.0.0-rc.12)
+is non-draft; annotated tag object `7314dc7768d7e12f3bbfb7501692a6998267e135`
+resolves to `e97425d098a0ae5b8578ac47bfa205ec95be2255`. Both Packagist source
+and dist references and both lock references match that commit. The bundle is
+MIT; Packagist reported no bundle advisory on 2026-09-13.
+Only the bundle changes from RC11 to RC12: Symfony, Doctrine, Flysystem and S3
+packages keep their exact locked versions. No alternative repository or local
+package archive is used. See the [validation report](rc12-validation.md).
 
 The demo owns configuration, synthetic infrastructure and application-level
 integration probes. The bundle owns the public technical isolation contract.
-Read its [migration guide](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.11/docs/migration-rc10-to-rc11.md),
-[generic API contract](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.11/docs/object-storage.md)
-and [optional S3-compatible bridge](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.11/docs/object-storage-flysystem.md)
+Read its [migration guide](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.12/docs/migration-rc11-to-rc12.md),
+[generic API contract](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.12/docs/object-storage.md)
+and [optional S3-compatible bridge](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.12/docs/object-storage-flysystem.md)
 for the normative API details.
 
 ## Dependency boundary
@@ -20,7 +22,7 @@ for the normative API details.
 The consumer explicitly requires:
 
 ```console
-composer require 'zhortein/multi-tenant-bundle:1.0.0-rc.11' \
+composer require 'zhortein/multi-tenant-bundle:1.0.0-rc.12' \
   'league/flysystem:^3.30.2' 'league/flysystem-aws-s3-v3:^3.30.1' \
   'aws/aws-sdk-php:^3.371.5'
 ```
@@ -78,10 +80,13 @@ make storage-stop
 ```
 
 `storage-start` explicitly combines base, development and `compose.storage.yaml`.
-It generates a seven-day local TLS certificate in ignored
+It generates an independent random application audit key and a seven-day local TLS certificate in ignored
 `var/object-storage/tls`, starts MinIO with verified HTTPS readiness, and
 provisions private buckets and synthetic accounts. It preserves existing TLS
-material and named data volumes. Inspect expired/incomplete generated material
+material, audit keys and named data volumes. The audit key is stored separately at
+`var/object-storage/audit/current.key` with mode 0600, mounted only into PHP,
+and never mounted into MinIO. `OBJECT_AUDIT_KEY_FILE` points to this runtime file.
+Keep it for as long as these objects need identity verification. Inspect expired/incomplete generated material
 before explicitly replacing it; a readiness failure is never ignored.
 
 PHP uses the internal endpoint. The signing endpoint is a second DNS alias of
@@ -128,6 +133,13 @@ has a MinIO dependency. Inject these variables through the deployment environmen
 - The three `OBJECT_BUCKET_*` values, `OBJECT_REGION`, `OBJECT_ACCESS_KEY` and
   `OBJECT_SECRET_KEY`.
 - Optional `OBJECT_CA_BUNDLE`: a mounted CA path; otherwise the system trust store.
+- `OBJECT_AUDIT_KEY_FILE`: mounted application-only file containing exactly 64
+  lowercase hex characters from 32 random bytes, without a trailing newline.
+  It must be independent of storage credentials. No usable default key exists;
+  an unconfigured key fails at runtime when audit is explicitly enabled.
+  Keys are resolved at runtime, never embedded
+  in container definitions or compiled cache. Keep old keys when rotating the
+  configured codec keyring; the local demo starts with one key named `current`.
 - `OBJECT_NAMESPACES`: a JSON map from immutable tenant IDs to unique opaque values.
 - `OBJECT_PROVIDER_OVERRIDES`: a JSON map, for example `{"1":"dedicated"}`.
 - `OBJECT_DEDICATED_TENANT_ID`: the dedicated location's explicit allowlist entry.
@@ -136,6 +148,83 @@ With no storage environment configured, container compilation succeeds and
 unprovisioned tenant storage fails closed. The production image is compiled in
 a network-disabled container as a durable CI check. No external storage is
 provisioned or contacted by that check.
+
+## Explicit RC12 audit adoption
+
+`config/packages/test/object_storage.yaml` explicitly sets `audit.enabled: true`
+and registers `ObjectStorageAuditCodec`. The shared configuration declares each
+location's provider and potential audit capabilities, and calls the S3 factory
+with `audit: true` and the declared class `AuditableFlysystemBackend`. Audit is
+disabled by default in the bundle itself.
+There is no database migration or automatic rewrite of existing objects.
+This activation belongs to the `test` profile, alongside the existing executable
+fixtures. Default development/production storage keeps audit disabled and preserves
+ordinary RC11 behavior without requiring an audit key. To adopt audit outside the
+proof, explicitly copy the audit codec and activation into the desired profile
+and provision its application-only key before starting commands or workers.
+Do not include the test Doctrine/Messenger configuration in production.
+
+The new executable example is `tests/Integration/ObjectStorageAuditTest.php`.
+There is no existing generic object-storage page, so the proof remains tests and
+documentation. The older local-file UI, upload/download and Messenger stay covered.
+
+After the trusted execution boundary has authorized and selected a tenant:
+
+```php
+// Inject TenantObjectStorageInterface and TenantObjectStorageAuditInterface.
+$locations = $audit->inventoryLocations(10);
+// Public locationId is also the immutable generation ID. Descriptors include
+// provider, active, auditListing and identityObservation; no physical target.
+$reference = $storage->allocate();
+$identity = LogicalObjectIdentity::forReference($reference, bin2hex(random_bytes(32)));
+$audit->writeWithIdentity($reference, 'synthetic payload', $identity);
+$observation = $audit->observe($reference);
+// verified + matchesReference() correlates the application claim with placement.
+$scope = $audit->auditScope($reference->locationId);
+$page = $audit->auditList($scope, 1);
+// Pass nextCursor unchanged with the same tenant, scope and page limit.
+```
+
+Inventory includes allowed active and historical generations and constructs no
+backend, binding or network client. The configured test-profile factory construction counter
+proves this for A/B/A and paginated inventory. Selecting a scope may construct
+only the selected backend; it allocates no object. Identity writes and observation
+use real MinIO. Applications own durable persistence of the expected reference
+and logical identity; these bounded fixtures do not add an application store.
+
+A logical identity is an **application correlation claim**. It does not attest
+content, business ownership or prior existence. It does not protect against a
+storage administrator who copies/replays a valid envelope with other content or
+removes it. `verified` authenticates the claim under an application key; it does
+not turn the object into proof of historical provenance.
+
+An unchanged RC11 write and restored v1 reference remain readable, with
+`identity_absent` and no identity. An actual object written using the public RC11
+package was also read and observed after the local upgrade. No provenance is
+invented from dates, sizes, content or technical addresses. Ordinary writes remain
+valid and do not backfill identity metadata.
+
+The fixture uses a public backend decorator to place a foreign authenticated
+claim and an invalid envelope on objects created only by the test, in real MinIO.
+A `foreign` observation exposes only its state and a random observation ID:
+reference, identity and metadata are null. `identity_invalid` exposes no envelope.
+One anomalous entry does not prevent a subsequent page. No raw reference, bucket,
+physical key, endpoint, credential, signed URL or vendor diagnostic is rendered.
+
+A malformed or cross-tenant cursor, foreign scope or broken global page fails
+closed. Tests inject a foreign physical entry after an actual MinIO LIST and
+verify rejection before any HEAD; a real unavailable S3 bucket separately proves
+a global error with no fallback. A reset during LIST invalidates the entire page
+and returns a sanitized `backend_failure`, with no chained vendor exception.
+An error means incomplete observation, never absence or an orphan verdict.
+After reset, a cursor is reusable only after restoring the same authorized scope.
+A kernel shutdown/reboot also clears context and preserves historical readability.
+
+Audit adds no repair, deletion, reconciliation command, ledger, quota, notification,
+business lifecycle, migration or administrative interface. Test teardown removes
+only test-allocated objects. It never scans for or deletes orphans. Pagination is
+bounded and is not a distributed snapshot or proof of global completeness. See the
+[public audit contract](https://github.com/Zhortein/multi-tenant-bundle/blob/v1.0.0-rc.12/docs/object-storage-audit.md).
 
 ## Persistence and authorization fixtures
 
@@ -219,7 +308,7 @@ PHPStan now runs at maximum level across application, tests and tools. Its
 versioned baseline contains exactly 194 diagnostics independently reproduced on
 the unchanged base `91a870bd0a4775ada4bdb0017a3e04b9aa66f503`, with RC10 installed
 from its lock. None belongs to the new object-storage code. New or unmatched
-diagnostics fail the gate. PHP-CS-Fixer checks the new RC11 PHP surface; legacy
+diagnostics fail the gate. PHP-CS-Fixer checks the RC11/RC12 storage PHP surface; legacy
 formatting is not rewritten. This does not claim the inherited application has
 zero static-analysis debt.
 
@@ -237,4 +326,4 @@ RC10 checkout reproduce all eight; RC11 adds no new deprecation to that set.
 matches it exactly under strict Composer validation, and runs `composer audit`.
 Any other Composer warning fails. Flex adds only the official PHP-CS-Fixer recipe;
 contributed recipes remain disabled. The historical bundle recipe metadata in
-`symfony.lock` is not a dependency selector; only `composer.lock` selects RC11.
+`symfony.lock` is not a dependency selector; only `composer.lock` selects RC12.

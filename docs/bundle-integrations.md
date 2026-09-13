@@ -19,10 +19,12 @@ strict mode reports it as a nonzero exit even when the schema and lock are
 valid. Keep the reviewed exact version instead of relaxing it to silence that
 warning. Dependency audit remains required.
 
-RC11 additionally enables the generic object-storage API through explicitly
-configured S3-compatible services. Start `make storage-start` before the complete
+RC12 adds explicitly enabled public audit capabilities to the RC11 generic
+object-storage proof in the test profile, using the configured S3-compatible
+services. Start `make storage-start` before the complete
 suite; [the storage proof](object-storage.md) describes the real MinIO scenarios,
-reference persistence, private temporary URLs and PostgreSQL 16/18 matrix.
+reference persistence, private temporary URLs, logical identity, sanitized
+observations, lazy inventory and PostgreSQL 16/18 matrix.
 `make composer-check` matches the one documented warning exactly and rejects
 all other Composer warnings.
 

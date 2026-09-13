@@ -42,29 +42,30 @@ services:
 
     app.object_storage.backend:
         abstract: true
-        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\AuditableFlysystemBackend
         factory: ['Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\S3CompatibleStorageFactory', create]
         arguments:
             $accessKey: '%env(OBJECT_ACCESS_KEY)%'
             $secretKey: '%env(OBJECT_SECRET_KEY)%'
             $temporaryUrls: true
+            $audit: true
             $caBundle: '%env(default:object_storage.system_ca:OBJECT_CA_BUNDLE)%'
 
     app.object_storage.shared_v1:
         parent: app.object_storage.backend
-        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\AuditableFlysystemBackend
         arguments:
             $config: '@app.object_storage.shared_v1.configuration'
 
     app.object_storage.shared_v2:
         parent: app.object_storage.backend
-        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\AuditableFlysystemBackend
         arguments:
             $config: '@app.object_storage.shared_v2.configuration'
 
     app.object_storage.dedicated_v1:
         parent: app.object_storage.backend
-        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\SigningFlysystemBackend
+        class: Zhortein\MultiTenantBundle\ObjectStorage\Bridge\Flysystem\AuditableFlysystemBackend
         arguments:
             $config: '@app.object_storage.dedicated_v1.configuration'
 
@@ -92,16 +93,25 @@ zhortein_multi_tenant:
                 active_location: dedicated_v1
         locations:
             shared_v1:
+                provider: shared
+                audit_listing: true
+                identity_observation: true
                 backend: app.object_storage.shared_v1
                 binding: app.object_storage.shared_v1
                 allowed_tenants: ['*']
                 temporary_urls: true
             shared_v2:
+                provider: shared
+                audit_listing: true
+                identity_observation: true
                 backend: app.object_storage.shared_v2
                 binding: app.object_storage.shared_v2
                 allowed_tenants: ['*']
                 temporary_urls: true
             dedicated_v1:
+                provider: dedicated
+                audit_listing: true
+                identity_observation: true
                 backend: app.object_storage.dedicated_v1
                 binding: app.object_storage.dedicated_v1
                 allowed_tenants: ['%env(OBJECT_DEDICATED_TENANT_ID)%']
