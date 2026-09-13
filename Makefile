@@ -74,8 +74,9 @@ test: ## Run tests against the isolated test database
 
 .PHONY: storage-certificates storage-start storage-status storage-test storage-stop
 
-storage-certificates: ## Generate local TLS material without printing private keys
+storage-certificates: ## Prepare local TLS and audit material without printing private keys
 	$(STORAGE_COMPOSE) run --rm --no-deps --entrypoint php -v "$(CURDIR)/var:/app/var" $(PHP_CONTAINER) tools/storage-certificates.php
+	$(STORAGE_COMPOSE) run --rm --no-deps --entrypoint php -v "$(CURDIR)/var:/app/var" $(PHP_CONTAINER) tools/storage-audit-key.php
 
 storage-start: storage-certificates ## Start local private MinIO and the application
 	$(STORAGE_COMPOSE) up -d --wait --wait-timeout 60 minio database $(PHP_CONTAINER)
@@ -84,8 +85,8 @@ storage-start: storage-certificates ## Start local private MinIO and the applica
 storage-status: ## Show local object storage readiness
 	$(STORAGE_COMPOSE) ps minio
 
-storage-test: ## Prove RC11 object storage against real MinIO (no skips)
-	$(STORAGE_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php $(PHP_TEST_OPTIONS) bin/phpunit tests/Integration/ObjectStorageTest.php tests/Integration/ObjectStorageMessengerTest.php
+storage-test: ## Prove RC12 object storage and audit against real MinIO (no skips)
+	$(STORAGE_COMPOSE) exec -T -e DATABASE_URL="$(TEST_DATABASE_BASE_URL)" $(PHP_CONTAINER) php $(PHP_TEST_OPTIONS) bin/phpunit --fail-on-skipped tests/Integration/ObjectStorageTest.php tests/Integration/ObjectStorageMessengerTest.php tests/Integration/ObjectStorageAuditTest.php
 
 storage-stop: ## Stop the local stack and preserve its data volumes
 	$(STORAGE_COMPOSE) down
@@ -99,7 +100,7 @@ composer-check: ## Accept only the documented exact-RC warning and audit the loc
 phpstan: ## Run maximum-level PHPStan with the measured pre-RC11 baseline
 	$(DOCKER_COMPOSE) exec -T $(PHP_CONTAINER) vendor/bin/phpstan analyse --no-progress --memory-limit=512M
 
-cs-check: ## Check formatting of the RC11 integration surface
+cs-check: ## Check formatting of the object-storage integration surface
 	docker run --rm --network none -v "$(CURDIR):/code:ro" $(PHP_CS_FIXER_IMAGE) fix --dry-run --diff --using-cache=no
 
 quality: test-database fixtures schema-validate test phpstan cs-check composer-check ## Run all declared quality checks

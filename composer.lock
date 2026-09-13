@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9dc317fb34fe003ca9f012de9b6a28d7",
+    "content-hash": "23244c6a5f93fc7914521c01af2a6651",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -9024,16 +9024,16 @@
         },
         {
             "name": "zhortein/multi-tenant-bundle",
-            "version": "v1.0.0-rc.11",
+            "version": "v1.0.0-rc.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zhortein/multi-tenant-bundle.git",
-                "reference": "fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94"
+                "reference": "e97425d098a0ae5b8578ac47bfa205ec95be2255"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94",
-                "reference": "fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94",
+                "url": "https://api.github.com/repos/Zhortein/multi-tenant-bundle/zipball/e97425d098a0ae5b8578ac47bfa205ec95be2255",
+                "reference": "e97425d098a0ae5b8578ac47bfa205ec95be2255",
                 "shasum": ""
             },
             "require": {
@@ -9146,7 +9146,7 @@
                 "issues": "https://github.com/zhortein/multi-tenant-bundle/issues",
                 "source": "https://github.com/zhortein/multi-tenant-bundle"
             },
-            "time": "2026-09-06T06:06:31+00:00"
+            "time": "2026-09-13T09:01:02+00:00"
         }
     ],
     "packages-dev": [

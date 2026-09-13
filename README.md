@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Zhortein/multi-tenant-demo/actions/workflows/ci.yml)
 
-A fail-closed reference consumer of **Zhortein Multi-Tenant Bundle RC11**, validated with PHP 8.5.9 and PostgreSQL 16 and 18.
+A fail-closed reference consumer of **Zhortein Multi-Tenant Bundle RC12**, validated with PHP 8.5.9 and PostgreSQL 16 and 18.
 
 ## 🏢 Overview
 
@@ -379,8 +379,8 @@ allow the Scheduler Worker to handle it because Scheduler messages carry a
 
 Bundle release validation uses the immutable public package from Packagist. Do
 not add a Composer `path`, VCS, fork, or branch repository to this project. The
-committed dependency and lock file use exactly published RC11 at
-`fe769e9e2ea6fc5db6bd2f8bd23f2e52ba04ee94`.
+committed dependency and lock file use exactly published RC12 at
+`e97425d098a0ae5b8578ac47bfa205ec95be2255`.
 
 The default Messenger bus explicitly enables `validation`. Integration tests
 combine it with an application middleware witness and the bundle's automatic
